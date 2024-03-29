@@ -34,4 +34,4 @@ async def credits(interaction: commands.Context):
 
     await interaction.send(embed=e, ephemeral=True)
 
-bot.run(config.token)
+bot.run(config.discord_token)
