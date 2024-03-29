@@ -27,4 +27,11 @@ async def aaron(interaction: commands.Context):
     image = discord.File(f"images/aaron/{no + 1}.{fileformat}")
     await interaction.send(file=image)
 
+@bot.hybrid_command(name="credits", description="Thanks everyone who helped work on this bot!")
+async def credits(interaction: commands.Context):
+    e = discord.Embed(title="Credits", colour=discord.Colour.blurple())
+    e.add_field(name="Programming", value="[valbuildr](https://github.com/valbuildr)\n[slipinthedove](https://github.com/slipinthedove) (also known as <@1132298238628724837>)", inline=False)
+
+    await interaction.send(embed=e, ephemeral=True)
+
 bot.run(config.token)
