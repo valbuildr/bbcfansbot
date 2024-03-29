@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import config
 import random
+import time
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 
@@ -12,9 +13,17 @@ async def on_ready():
 
 @bot.command(name="sync")
 async def sync(interaction: commands.Context):
-    if interaction.author.id == bot.owner_id:
+    owner = await bot.is_owner(interaction.author)
+    if owner:
+        m = await interaction.send("Syncing....")
         await bot.tree.sync()
-        await interaction.send(content="Synced!")
+        await m.edit(content="Synced!")
+        return
+    else:
+        m = await interaction.send(content="You don't have the permissions to do this!")
+        await interaction.message.delete(10)
+        await m.delete(10)
+        return
 
 @bot.hybrid_command(name="aaron", description="Sends a random picture of Aaron Heslehurst!")
 async def aaron(interaction: commands.Context):
