@@ -10,7 +10,7 @@ async def on_ready():
     print(f"Logged in as {bot.user.name}.")
     return
 
-@bot.hybrid_command(name="sync")
+@bot.command(name="sync")
 async def sync(interaction: commands.Context):
     if interaction.author.id == 1191850547138007132:
         await bot.tree.sync()
