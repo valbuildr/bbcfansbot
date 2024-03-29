@@ -27,4 +27,8 @@ async def aaron(interaction: commands.Context):
     image = discord.File(f"images/aaron/{no + 1}.{fileformat}")
     await interaction.send(file=image)
 
+@bot.hybrid_command(name="programme", description="Gets the latest on programming from the BBC services!")
+async def programme(interaction: commands.Context):
+    
+
 bot.run(config.token)
