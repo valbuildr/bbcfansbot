@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import config
 import random
+import time
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 
@@ -10,11 +11,19 @@ async def on_ready():
     print(f"Logged in as {bot.user.name}.")
     return
 
-@bot.hybrid_command(name="sync")
+@bot.command(name="sync")
 async def sync(interaction: commands.Context):
-    if interaction.author.id == 1191850547138007132:
+    owner = await bot.is_owner(interaction.author)
+    if owner:
+        m = await interaction.send("Syncing....")
         await bot.tree.sync()
-        await interaction.send(content="Synced!")
+        await m.edit(content="Synced!")
+        return
+    else:
+        m = await interaction.send(content="You don't have the permissions to do this!")
+        await interaction.message.delete(10)
+        await m.delete(10)
+        return
 
 @bot.hybrid_command(name="aaron", description="Sends a random picture of Aaron Heslehurst!")
 async def aaron(interaction: commands.Context):
@@ -31,4 +40,11 @@ async def aaron(interaction: commands.Context):
 async def programme(interaction: commands.Context):
     
 
-bot.run(config.token)
+@bot.hybrid_command(name="credits", description="Thanks everyone who helped work on this bot!")
+async def credits(interaction: commands.Context):
+    e = discord.Embed(title="Credits", colour=discord.Colour.blurple())
+    e.add_field(name="Programming", value="[valbuildr](https://github.com/valbuildr)\n[slipinthedove](https://github.com/slipinthedove) (also known as <@1132298238628724837>)", inline=False)
+
+    await interaction.send(embed=e, ephemeral=True)
+
+bot.run(config.discord_token)
