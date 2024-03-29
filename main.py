@@ -12,7 +12,7 @@ async def on_ready():
 
 @bot.command(name="sync")
 async def sync(interaction: commands.Context):
-    if interaction.author.id == 1191850547138007132:
+    if interaction.author.id == bot.owner_id:
         await bot.tree.sync()
         await interaction.send(content="Synced!")
 
