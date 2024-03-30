@@ -8,30 +8,33 @@ async def verify_date(date):
         dsplit = re.split('-', date)
     except:
         return "splitFailure"
-    if dsplit.len() > 3 or dsplit.len() < 3:
+    if len(dsplit) > 3 or len(dsplit) < 3:
         return "notEnoughValues"
 
     # chaotic. but it's basically all the checks for 
     # year, month and day to ensure they are with the correct length 
     # and do not contain strings or any special contents.
-    if isinstance(dsplit[0], int) and dsplit[0].len() == 4 and isinstance(dsplit[1], int) and dsplit[1].len() == 2 and isinstance(dsplit[2], int) and dsplit[2].len() == 2:
+    if isinstance(dsplit[0], str) and len(dsplit[0]) == 4 and isinstance(dsplit[1], str) and len(dsplit[1]) == 2 and isinstance(dsplit[2], str) and len(dsplit[2]) == 2:
         curdate = datetime.datetime.now()
-        # check if it's not higher than current year and if date is not not older than a year.
-        if not dsplit[0] > curdate.year() and not dsplit[0] < curdate.year() - 1:
-            fetchdate = "incorrectYear"
+        # check if it's not higher than current year and if date is not not older than two years.
+        if int(dsplit[0]) > curdate.year or int(dsplit[0]) < curdate.year - 2:
+            return "incorrectYear"
         # check if it's not newer than current month if it's in the same year. 
-        if dsplit[0] == curdate.year() and dsplit[1] > curdate.month():
-            fetchdate = "newerMonth"
-        if dsplit[1] > 12:
-            fetchdate = "incorrectMonth"
+        if int(dsplit[0]) == curdate.year and int(dsplit[1]) > curdate.month:
+            return "newerMonth"
+        if int(dsplit[1]) > 12:
+            return "incorrectMonth"
         # check if it's not newer than current day if it's in the same month and year. 
-        if dsplit[0] == curdate.year() and dsplit[1] == curdate.month() and dsplit[2] > curdate.day(): 
+        if int(dsplit[0]) == curdate.year and int(dsplit[1]) == curdate.month and int(dsplit[2]) > curdate.day: 
             fetchdate = "newerDay"
-        if dsplit[2] > 31:
-            fetchdate = "incorrectDay"
+            return fetchdate
+        if int(dsplit[2]) > 31:
+            return "incorrectDay"
         # else, return the correct datetime.
-        fetchdate = datetime.datetime(dsplit[0], dsplit[1], dsplit[2])
+        fetchdate = datetime.datetime(int(dsplit[0]), int(dsplit[1]), int(dsplit[2]))
         return fetchdate
+    else:
+        return "incorrectDate"
 
  
 async def resolve_sid(sid):

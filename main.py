@@ -4,6 +4,7 @@ from discord.ext import commands
 import config
 import random
 import time
+import traceback
 from modules import nitro
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
@@ -103,10 +104,12 @@ async def programme(interaction: discord.InteractionResponse, sid: str="one", da
         e.add_field(name=f"Page {page} (times are based on your system clock):", value=items)
         await interaction.response.send_message(embed=e, ephemeral=True)
     except Exception as e:
+        print(traceback.format_exc())
         msg = await error_template(f"{e}")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
     except:
+        print(traceback.format_exc())
         msg = await error_template(f"<:idk:1100473028485324801> Check bot logs.")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
