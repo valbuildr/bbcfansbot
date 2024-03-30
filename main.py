@@ -84,10 +84,11 @@ async def programme_sid_autocomplete(interaction: discord.Interaction, current: 
 # programme works best as a slash-only command. 
 # primarily because it's more practical to get the arguments from the user.
 @bot.tree.command(name="programme", description="Gets the latest schedules from the BBC services!")
-@discord.app_commands.describe(channel="The channel (service ID) by it's short-name", 
+@discord.app_commands.describe(sid="The channel (service ID) by it's short-name", 
                                 date="The date of the schedule to get. Uses YYYY-MM-DD formatting.", 
                                 page="The page of the schedule to get.")
 @discord.app_commands.autocomplete(sid=programme_sid_autocomplete)
+@discord.app_commands.rename(sid='channel')
 async def programme(interaction: discord.InteractionResponse, sid: str="one", date: str=None, page: int=1):
     try:
         listing = await nitro.get_schedule(date, sid, page)
