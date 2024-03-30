@@ -82,6 +82,7 @@ async def get_schedule(date=None, sid="one", page=1):
         raise Exception(f"ERROR - {parsed_date}")
     else:
         parsedsid = await resolve_sid(sid)
+        if not isinstance(parsedsid, str): raise Exception("ERROR - IncorrectSID") # raise error if sid given is incorrect
         # mixin titles is needed to get the proper related info about the scheduled broadcast's naming.
         params = { 
             'api_key': config.nitro, 'sid': parsedsid, 'mixin': 'titles', 
@@ -94,41 +95,44 @@ async def get_schedule(date=None, sid="one", page=1):
                 if resp.status >= 200 and not resp.status > 299:
                     try: 
                         j = await resp.json()
-                        if j['nitro']['results']['total'] > 0:
-                            # gives the parsed sid information, and the date, alongside with the items.
-                            listing = { 
-                                "sid": parsedsid, 
-                                "passedSid": sid,
-                                "date": parsed_date.strftime("%Y-%m-%d"),
-                                "items": [] 
-                            }
-                            # gets every item available in the first search query
-                            for i in j['nitro']['results']['items']:
-                                # not always a program will return it's title by the brand 
-                                # (nor by the series) value, so we add a failsafe to ensure it'll get it from the one available.
-                                try:
-                                    title = i['ancestors_titles']['brand']
-                                except:
-                                    try:
-                                        title = i['ancestors_titles']['series']
-                                    except:
-                                        title = i['ancestors_titles']['episode']
-                                # converts to unix
-                                starttime = int(datetime.datetime.fromisoformat(i['published_time']['start']).timestamp())
-                                listing['items'].append({
-                                    "title": title['title'],
-                                    "pid": i['pid'],
-                                    "start": starttime
-                                })
-                            return listing
-                        # fails if there are no results.
-                        else:
-                            raise Exception("ERROR - NoResults")
-                    # fails if the json can't be properly deserialized for some reason.
-                    except Exception as err:
-                        raise Exception(f"{err}")
                     except: 
                         raise Exception("ERROR - JSONDeserError")
+
+                    if j['nitro']['results']['total'] > 0:
+                        # gives the parsed sid information, and the date, alongside with the items.
+                        listing = { 
+                            "sid": parsedsid, 
+                            "passedSid": sid,
+                            "date": parsed_date.strftime("%Y-%m-%d"),
+                            "items": [] 
+                        }
+                        # gets every item available in the first search query
+                        try:
+                            results = j['nitro']['results']['items']
+                        # fails if there are total results, but there are no more items.
+                        except:
+                            raise Exception("ERROR - NoItems")
+                        for i in results:
+                            # not always a program will return it's title by the brand 
+                            # (nor by the series) value, so we add a failsafe to ensure it'll get it from the one available.
+                            try:
+                                title = i['ancestors_titles']['brand']
+                            except:
+                                try:
+                                    title = i['ancestors_titles']['series']
+                                except:
+                                    title = i['ancestors_titles']['episode']
+                            # converts to unix
+                            starttime = int(datetime.datetime.fromisoformat(i['published_time']['start']).timestamp())
+                            listing['items'].append({
+                                "title": title['title'],
+                                "pid": i['pid'],
+                                "start": starttime
+                            })
+                        return listing
+                        # fails if there are no results.
+                    else:
+                        raise Exception("ERROR - NoResults")
                 # raises a generic http status exception if it can't go any further.
                 else:
                     raise Exception(f"ERROR - E{resp.status}")

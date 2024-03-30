@@ -48,7 +48,7 @@ async def aaron(interaction: commands.Context):
 @discord.app_commands.describe(sid="The service ID by it's short-name", 
                                 date="The date of the schedule to get. Uses YYYY-MM-DD formatting.", 
                                 page="The page of the schedule to get.")
-async def programme(interaction: discord.InteractionResponse, sid: str, date: str=None, page: int=1):
+async def programme(interaction: discord.InteractionResponse, sid: str="one", date: str=None, page: int=1):
     try:
         listing = await nitro.get_schedule(date, sid, page)
         items = ""
