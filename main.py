@@ -1,3 +1,4 @@
+from typing import List
 import discord
 from discord.ext import commands
 import config
@@ -8,8 +9,8 @@ from modules import nitro
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 
 async def error_template(e):
-    embed = discord.Embed(title=f"oops lol", colour=discord.Colour.red())
-    embed.add_field(name="error while running command", value=f"`{e}`")
+    embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
+    embed.add_field(name="Error", value=f"`{e}`")
     return embed
 
 @bot.event
@@ -42,12 +43,51 @@ async def aaron(interaction: commands.Context):
     image = discord.File(f"images/aaron/{no + 1}.{fileformat}")
     await interaction.send(file=image)
 
+async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
+    options = [
+        "BBC News [UK]",
+        "BBC News [World]",
+        "BBC One Scotland",
+        "BBC One North East",
+        "BBC One North West",
+        "BBC One North East Midlands",
+        "BBC One North West Midlands",
+        "BBC One North East Yorkshire",
+        "BBC One North London",
+        "BBC One North South East",
+        "BBC One North South West",
+        "BBC One North NI",
+        "BBC One North Wales",
+        "BBC One North West",
+        "BBC One North East",
+        "BBC One North South",
+        "BBC One North Yorks",
+        "BBC One",
+        "BBC Two England",
+        "BBC Two Scotland",
+        "BBC Two NI",
+        "BBC Two Wales",
+        "BBC Two",
+        "BBC Three",
+        "BBC Four",
+        "Cbeebies",
+        "CBBC",
+        "BBC Parliament",
+        "BBC Alba",
+        "BBC Scotland",
+    ]
+    return [
+        discord.app_commands.Choice(name=option, value=option)
+        for option in options if current.lower() in option.lower()
+    ]
+
 # programme works best as a slash-only command. 
 # primarily because it's more practical to get the arguments from the user.
 @bot.tree.command(name="programme", description="Gets the latest schedules from the BBC services!")
-@discord.app_commands.describe(sid="The service ID by it's short-name", 
+@discord.app_commands.describe(channel="The channel (service ID) by it's short-name", 
                                 date="The date of the schedule to get. Uses YYYY-MM-DD formatting.", 
                                 page="The page of the schedule to get.")
+@discord.app_commands.autocomplete(sid=programme_sid_autocomplete)
 async def programme(interaction: discord.InteractionResponse, sid: str="one", date: str=None, page: int=1):
     try:
         listing = await nitro.get_schedule(date, sid, page)
@@ -59,14 +99,14 @@ async def programme(interaction: discord.InteractionResponse, sid: str="one", da
         for i in listing['items']:
             items += f"<t:{i['start']}:t> - **{i['title']}**\n"
         # adds the items field after being parsed as a single-str
-        e.add_field(name=f"Page {page} (times are based on your clock):", value=items)
+        e.add_field(name=f"Page {page} (times are based on your system clock):", value=items)
         await interaction.response.send_message(embed=e, ephemeral=True)
     except Exception as e:
         msg = await error_template(f"{e}")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
     except:
-        msg = await error_template(f"Check bot logs, i guess.")
+        msg = await error_template(f"<:idk:1100473028485324801> Check bot logs.")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
 
