@@ -7,31 +7,34 @@ async def verify_date(date):
     try:
         dsplit = re.split('-', date)
     except:
-        return "splitFailure"
-    if dsplit.len() > 3 or dsplit.len() < 3:
-        return "notEnoughValues"
-
+        return "Split Failure"
+    if len(dsplit) > 3 or len(dsplit) < 3:
+        return "Not Enough Values (input must be of format YYYY-MM-DD)"
+    year, month, day = int(dsplit[0]), int(dsplit[1]), int(dsplit[2])
     # chaotic. but it's basically all the checks for 
     # year, month and day to ensure they are with the correct length 
     # and do not contain strings or any special contents.
-    if isinstance(dsplit[0], int) and dsplit[0].len() == 4 and isinstance(dsplit[1], int) and dsplit[1].len() == 2 and isinstance(dsplit[2], int) and dsplit[2].len() == 2:
+    if isinstance(dsplit[0], str) and len(year) == 4 and isinstance(dsplit[1], str) and len(month) == 2 and isinstance(dsplit[2], str) and len(month) == 2:
         curdate = datetime.datetime.now()
-        # check if it's not higher than current year and if date is not not older than a year.
-        if not dsplit[0] > curdate.year() and not dsplit[0] < curdate.year() - 1:
-            fetchdate = "incorrectYear"
+        # check if it's not higher than current year and if date is not not older than two years.
+        if year > curdate.year or year < curdate.year - 2:
+            return "Year higher, or older than accepted"
         # check if it's not newer than current month if it's in the same year. 
-        if dsplit[0] == curdate.year() and dsplit[1] > curdate.month():
-            fetchdate = "newerMonth"
-        if dsplit[1] > 12:
-            fetchdate = "incorrectMonth"
-        # check if it's not newer than current day if it's in the same month and year. 
-        if dsplit[0] == curdate.year() and dsplit[1] == curdate.month() and dsplit[2] > curdate.day(): 
-            fetchdate = "newerDay"
-        if dsplit[2] > 31:
-            fetchdate = "incorrectDay"
+        if year == curdate.year and month > curdate.month:
+            return "Month newer than current"
+        if month > 12:
+            return "Incorrect Month"
+        # check if it's not newer than 5 days ahead if it's in the same month and year. 
+        if year == curdate.year and month == curdate.month and day > curdate.day + 5: 
+            fetchdate = "Day newer than accepted"
+            return fetchdate
+        if day > 31 or month == 2 and day > 28:
+            return "incorrectDay"
         # else, return the correct datetime.
-        fetchdate = datetime.datetime(dsplit[0], dsplit[1], dsplit[2])
+        fetchdate = datetime.datetime(int(dsplit[0]), int(dsplit[1]), int(dsplit[2]))
         return fetchdate
+    else:
+        return "Incorrect Date"
 
  
 async def resolve_sid(sid):
@@ -71,7 +74,7 @@ async def resolve_sid(sid):
     return parsedsid
 
 
-async def get_schedule(date=None, sid="one", page=1):
+async def get_schedule(date=None, sid="BBC News [UK]", page=1):
     if not isinstance(date, datetime.datetime):
         # goes under a check to see if the inputted values are correct
         if not date: 
@@ -112,7 +115,7 @@ async def get_schedule(date=None, sid="one", page=1):
                             results = j['nitro']['results']['items']
                         # fails if there are total results, but there are no more items.
                         except:
-                            raise Exception("ERROR - NoItems")
+                            raise Exception("ERROR - No Items")
                         for i in results:
                             # not always a program will return it's title by the brand 
                             # (nor by the series) value, so we add a failsafe to ensure it'll get it from the one available.
@@ -133,7 +136,7 @@ async def get_schedule(date=None, sid="one", page=1):
                         return listing
                         # fails if there are no results.
                     else:
-                        raise Exception("ERROR - NoResults")
+                        raise Exception("ERROR - No Results")
                 # raises a generic http status exception if it can't go any further.
                 else:
                     raise Exception(f"ERROR - E{resp.status}")
