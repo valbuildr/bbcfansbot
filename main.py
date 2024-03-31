@@ -90,7 +90,8 @@ async def programme_sid_autocomplete(interaction: discord.Interaction, current: 
                                 page="The page of the schedule to get.")
 @discord.app_commands.autocomplete(sid=programme_sid_autocomplete)
 @discord.app_commands.rename(sid='channel')
-async def programme(interaction: discord.InteractionResponse, sid: str="one", date: str=None, page: int=1):
+async def programme(interaction: discord.InteractionResponse, 
+                    sid: str="BBC News [UK]", date: str=None, page: int=1):
     try:
         listing = await nitro.get_schedule(date, sid, page)
         items = ""
@@ -104,8 +105,7 @@ async def programme(interaction: discord.InteractionResponse, sid: str="one", da
         e.add_field(name=f"Page {page} (times are based on your system clock):", value=items)
         await interaction.response.send_message(embed=e, ephemeral=True)
     except Exception as e:
-        print(traceback.format_exc())
-        msg = await error_template(f"{e}")
+        msg = await error_template(f"```\n{e}\n```")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
     except:
