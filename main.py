@@ -53,9 +53,9 @@ async def programme_sid_autocomplete(interaction: discord.Interaction, current: 
         for option in options if current.lower() in option.lower()
     ]
 
-# programme works best as a slash-only command. 
+# schedule works best as a slash-only command. 
 # primarily because it's more practical to get the arguments from the user.
-@bot.tree.command(name="programme", description="Gets the latest schedules from the BBC services!")
+@bot.tree.command(name="schedule", description="Gets the latest schedules from the BBC services!")
 @discord.app_commands.describe(sid="The channel (service ID) by it's short-name", 
                                 date="The date of the schedule to get. Uses YYYY-MM-DD formatting.", 
                                 page="The page of the schedule to get.")
