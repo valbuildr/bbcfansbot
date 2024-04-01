@@ -41,9 +41,10 @@ async def resolve_sid(sid, db):
     for val in db['NitroSIDs']:
         if sid == val:
             parsedsid = db['NitroSIDs'][val]
+            return parsedsid
         else:
             continue
-    return parsedsid
+
 
 
 async def get_schedule(db, sid, date=None, page=0):
@@ -58,7 +59,7 @@ async def get_schedule(db, sid, date=None, page=0):
         raise Exception(f"ERROR - {parsed_date}")
     else:
         parsedsid = await resolve_sid(sid, db)
-        if not isinstance(parsedsid, str): raise Exception("ERROR - IncorrectSID") # raise error if sid given is incorrect
+        if not isinstance(parsedsid, str): raise Exception("ERROR - Incorrect Channel.") # raise error if sid given is incorrect
         # mixin titles is needed to get the proper related info about the scheduled broadcast's naming.
         params = { 
             'api_key': config.nitro, 'sid': parsedsid, 'mixin': 'titles', 
