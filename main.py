@@ -92,4 +92,9 @@ async def credits(interaction: commands.Context):
 
     await interaction.send(embed=e, ephemeral=True)
 
+@bot.hybrid_command(name="issue", description="Having an issue with the bot? Learn how to report it here.")
+async def issue(interaction: commands.Context):
+    e = discord.Embed(title="Having an issue?", description="Report it on the [Github repository](https://github.com/valbuildr/bbcfansbot/issues).", colour=discord.Colour.blurple())
+    await interaction.send(embed=e, ephemeral=True)
+
 bot.run(config.discord_token)
