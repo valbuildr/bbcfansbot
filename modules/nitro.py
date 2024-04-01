@@ -14,13 +14,13 @@ async def verify_date(date):
     # chaotic. but it's basically all the checks for 
     # year, month and day to ensure they are with the correct length 
     # and do not contain strings or any special contents.
-    if isinstance(dsplit[0], str) and len(year) == 4 and isinstance(dsplit[1], str) and len(month) == 2 and isinstance(dsplit[2], str) and len(month) == 2:
+    if isinstance(dsplit[0], str) and len(dsplit[0]) == 4 and isinstance(dsplit[1], str) and len(dsplit[1]) == 2 and isinstance(dsplit[2], str) and len(dsplit[2]) == 2:
         curdate = datetime.datetime.now()
         # check if it's not higher than current year and if date is not not older than two years.
         if year > curdate.year or year < curdate.year - 2:
             return "Year higher, or older than accepted"
-        # check if it's not newer than current month if it's in the same year. 
-        if year == curdate.year and month > curdate.month:
+        # check if it's not newer than current month if it's in the same year, but only if the current day gap is lower than 26 
+        if year == curdate.year and curdate.day < 26 and month > curdate.month:
             return "Month newer than current"
         if month > 12:
             return "Incorrect Month"

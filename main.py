@@ -47,7 +47,14 @@ async def aaron(interaction: commands.Context):
     await interaction.send(file=image)
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = list(db['NitroSIDs'])
+    options = db['NitroSIDs']['channels']
+    return [
+        discord.app_commands.Choice(name=option, value=option)
+        for option in options if current.lower() in option.lower()
+    ]
+
+async def programme_region_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
+    options = db['NitroSIDs']['region']
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
@@ -58,12 +65,15 @@ async def programme_sid_autocomplete(interaction: discord.Interaction, current: 
 @bot.tree.command(name="programme", description="Gets the latest schedules from the BBC services!")
 @discord.app_commands.describe(sid="The channel (service ID) by it's short-name", 
                                 date="The date of the schedule to get. Uses YYYY-MM-DD formatting.", 
-                                page="The page of the schedule to get.")
-@discord.app_commands.autocomplete(sid=programme_sid_autocomplete)
+                                page="The page of the schedule to get.",
+                                region="The region of the channel.")
+@discord.app_commands.autocomplete(sid=programme_sid_autocomplete,
+                                    region=programme_region_autocomplete)
 @discord.app_commands.rename(sid='channel')
 async def programme(interaction: discord.InteractionResponse, 
-                    sid: str="BBC News [UK]", date: str=None, page: int=1):
+                    sid: str="BBC News [UK]", date: str=None, page: int=1, region: str=None):
     try:
+        if region: sid = f"{sid} {region}"
         listing = await nitro.get_schedule(db, sid, date, page)
         items = ""
         # makes the embed base
