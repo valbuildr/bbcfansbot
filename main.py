@@ -6,12 +6,14 @@ import random
 import time
 import traceback
 from modules import nitro
+from simplejsondb import DatabaseFolder
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
+db = DatabaseFolder('db', default_factory=lambda _: list())
 
 async def error_template(e):
     embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
-    embed.add_field(name="Error", value=f"`{e}`")
+    embed.add_field(name="Error", value=f"{e}")
     return embed
 
 @bot.event
@@ -45,38 +47,7 @@ async def aaron(interaction: commands.Context):
     await interaction.send(file=image)
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = [
-        "BBC News [UK]",
-        "BBC News [World]",
-        "BBC One Scotland",
-        "BBC One North East",
-        "BBC One North West",
-        "BBC One North East Midlands",
-        "BBC One North West Midlands",
-        "BBC One North East Yorkshire",
-        "BBC One North London",
-        "BBC One North South East",
-        "BBC One North South West",
-        "BBC One North NI",
-        "BBC One North Wales",
-        "BBC One North West",
-        "BBC One North East",
-        "BBC One North South",
-        "BBC One North Yorks",
-        "BBC One",
-        "BBC Two England",
-        "BBC Two Scotland",
-        "BBC Two NI",
-        "BBC Two Wales",
-        "BBC Two",
-        "BBC Three",
-        "BBC Four",
-        "Cbeebies",
-        "CBBC",
-        "BBC Parliament",
-        "BBC Alba",
-        "BBC Scotland",
-    ]
+    options = list(db['NitroSIDs'])
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
@@ -93,10 +64,10 @@ async def programme_sid_autocomplete(interaction: discord.Interaction, current: 
 async def programme(interaction: discord.InteractionResponse, 
                     sid: str="BBC News [UK]", date: str=None, page: int=1):
     try:
-        listing = await nitro.get_schedule(date, sid, page)
+        listing = await nitro.get_schedule(db, sid, date, page)
         items = ""
         # makes the embed base
-        e = discord.Embed(title=f"Schedule for {listing['sid']} (`{listing['passedSid']}`), {listing['date']}", 
+        e = discord.Embed(title=f"Schedule for {listing['passedSid']}, {listing['date']}", 
             colour=discord.Colour.red())
         # sorts out every item with it's formatted date
         for i in listing['items']:
