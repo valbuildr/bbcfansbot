@@ -21,6 +21,13 @@ async def on_ready():
     print(f"Logged in as {bot.user.name}.")
     return
 
+@bot.event
+async def on_message(message: discord.Message):
+    if "bbc fans bot" in message.content.lower() or bot.user.mentioned_in(message):
+        await message.channel.send("hellow!")
+
+    await bot.process_commands(message)
+
 @bot.command(name="sync")
 async def sync(interaction: commands.Context):
     owner = await bot.is_owner(interaction.author)
