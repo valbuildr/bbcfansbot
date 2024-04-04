@@ -11,7 +11,7 @@ from simplejsondb import DatabaseFolder
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: list())
 
-async def error_template(e):
+def error_template(e):
     embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
     embed.add_field(name="Error", value=f"{e}")
     return embed
@@ -93,12 +93,12 @@ async def programme(interaction: discord.InteractionResponse,
         e.add_field(name=f"Page {page} (times are based on your system clock):", value=items)
         await interaction.response.send_message(embed=e, ephemeral=True)
     except Exception as e:
-        msg = await error_template(f"```\n{e}\n```")
+        msg = error_template(f"```\n{e}\n```")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
     except:
         print(traceback.format_exc())
-        msg = await error_template(f"<:idk:1100473028485324801> Check bot logs.")
+        msg = error_template(f"<:idk:1100473028485324801> Check bot logs.")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
 
