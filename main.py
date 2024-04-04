@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 import discord
 from discord.ext import commands
@@ -16,6 +17,13 @@ def error_template(e):
     embed.add_field(name="Error", value=f"{e}")
     return embed
 
+def dt_to_timestamp(dt: datetime, f):
+    formats = ["d", "D", "t", "T", "f", "F", "R"]
+    if f not in formats:
+        return str(round(time.mktime(dt.timetuple())))
+    else:
+        return f"<t:{round(time.mktime(dt.timetuple()))}:{f}>"
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}.")
@@ -27,6 +35,19 @@ async def on_message(message: discord.Message):
         await message.channel.send("hellow!")
 
     await bot.process_commands(message)
+
+@bot.event
+async def on_member_update(before: discord.Member, after: discord.Member):
+    if before.timed_out_until == None and after.timed_out_until != None:
+        to_until_a = dt_to_timestamp(after.timed_out_until, "R")
+        to_until_b = dt_to_timestamp(after.timed_out_until, "f")
+
+        embed = discord.Embed(title="Member timed out", colour=discord.Colour.brand_red())
+        embed.add_field(name="Timed out until", value=f"{to_until_a} ({to_until_b})")
+        embed.add_field(name="User", value=f"{after.mention}")
+        embed.timestamp = datetime.now()
+
+        await bot.get_guild(1016626731785928715).get_channel(1060597991347593297).send(embed=embed)
 
 @bot.command(name="sync")
 async def sync(interaction: commands.Context):
