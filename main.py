@@ -49,6 +49,10 @@ async def on_member_update(before: discord.Member, after: discord.Member):
 
         await bot.get_guild(1016626731785928715).get_channel(1060597991347593297).send(embed=embed)
 
+@bot.command()
+async def ping(ctx: commands.Context):
+    await ctx.send(content=f"## Pong!\nMy ping is {round(bot.latency * 1000)}ms.")
+
 @bot.command(name="sync")
 async def sync(interaction: commands.Context):
     owner = await bot.is_owner(interaction.author)
