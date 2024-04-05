@@ -10,7 +10,7 @@ from modules import nitro
 from simplejsondb import DatabaseFolder
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
-db = DatabaseFolder('db', default_factory=lambda _: list())
+nitro_db = DatabaseFolder('nitro-db', default_factory=lambda _: list())
 
 def error_template(e):
     embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
@@ -79,14 +79,14 @@ async def aaron(interaction: commands.Context):
     await interaction.send(file=image)
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = db['NitroSIDs']['channels']
+    options = nitro_db['NitroSIDs']['channels']
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
     ]
 
 async def programme_region_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = db['NitroSIDs']['region']
+    options = nitro_db['NitroSIDs']['region']
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
@@ -106,7 +106,7 @@ async def programme(interaction: discord.InteractionResponse,
                     sid: str="BBC News [UK]", date: str=None, page: int=1, region: str=None):
     try:
         if region: sid = f"{sid} {region}"
-        listing = await nitro.get_schedule(db, sid, date, page)
+        listing = await nitro.get_schedule(nitro_db, sid, date, page)
         items = ""
         # makes the embed base
         e = discord.Embed(title=f"Schedule for {listing['passedSid']}, {listing['date']}", 
