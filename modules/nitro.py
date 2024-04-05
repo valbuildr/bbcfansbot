@@ -1,7 +1,4 @@
-import config
-import aiohttp
-import re
-import datetime
+import config, aiohttp, re, datetime
 
 async def verify_date(date):
     try:
@@ -39,7 +36,7 @@ async def verify_date(date):
  
 async def resolve_sid(sid, db):
     for val in db['NitroSIDs']:
-        if sid == val:
+        if sid.lower() == val.lower(): # lower assures case-insensitive querying
             parsedsid = db['NitroSIDs'][val]
             return parsedsid
         else:
@@ -63,7 +60,7 @@ async def get_schedule(db, sid, date=None, page=0):
         # mixin titles is needed to get the proper related info about the scheduled broadcast's naming.
         params = { 
             'api_key': config.nitro, 'sid': parsedsid, 'mixin': 'titles', 
-            'schedule_day': parsed_date.strftime("%Y-%m-%d"), 'page_size': 20, 'page': page
+            'schedule_day': parsed_date.strftime("%Y-%m-%d"), 'page_size': 25, 'page': page
         }
         # nitro uses xml by default, so we need to specify that it must only accept json for it to return into such syntax.
         async with aiohttp.ClientSession() as sesh:
@@ -80,8 +77,12 @@ async def get_schedule(db, sid, date=None, page=0):
                         listing = { 
                             "passedSid": sid,
                             "date": parsed_date.strftime("%Y-%m-%d"),
+                            "isToday": False,
                             "items": [] 
                         }
+                        # checks if schedule is from today
+                        if listing['date'] == datetime.datetime.now().strftime("%Y-%m-%d"):
+                            listing['isToday'] = True
                         # gets every item available in the first search query
                         try:
                             results = j['nitro']['results']['items']
@@ -100,10 +101,11 @@ async def get_schedule(db, sid, date=None, page=0):
                                     title = i['ancestors_titles']['episode']
                             # converts to unix
                             starttime = int(datetime.datetime.fromisoformat(i['published_time']['start']).timestamp())
+                            endtime = int(datetime.datetime.fromisoformat(i['published_time']['end']).timestamp())
                             listing['items'].append({
                                 "title": title['title'],
                                 "pid": i['pid'],
-                                "start": starttime
+                                "time": [starttime, endtime]
                             })
                         return listing
                         # fails if there are no results.
