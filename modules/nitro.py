@@ -1,4 +1,12 @@
-import config, aiohttp, re, datetime
+import config, aiohttp, re 
+from datetime import datetime
+
+def dt_to_timestamp(dt: datetime, f):
+    formats = ["d", "D", "t", "T", "f", "F", "R"]
+    if f not in formats:
+        return int(dt.timestamp())
+    else:
+        return f"<t:{int(dt.timestamp())}:{f}>"
 
 async def verify_date(date):
     try:
@@ -12,7 +20,7 @@ async def verify_date(date):
     # year, month and day to ensure they are with the correct length 
     # and do not contain strings or any special contents.
     if isinstance(dsplit[0], str) and len(dsplit[0]) == 4 and isinstance(dsplit[1], str) and len(dsplit[1]) == 2 and isinstance(dsplit[2], str) and len(dsplit[2]) == 2:
-        curdate = datetime.datetime.now()
+        curdate = datetime.now()
         # check if it's not higher than current year and if date is not not older than two years.
         if year > curdate.year or year < curdate.year - 2:
             return "Year higher, or older than accepted"
@@ -28,7 +36,7 @@ async def verify_date(date):
         if day > 31 or month == 2 and day > 28:
             return "incorrectDay"
         # else, return the correct datetime.
-        fetchdate = datetime.datetime(int(dsplit[0]), int(dsplit[1]), int(dsplit[2]))
+        fetchdate = datetime(int(dsplit[0]), int(dsplit[1]), int(dsplit[2]))
         return fetchdate
     else:
         return "Incorrect Date"
@@ -45,10 +53,10 @@ async def resolve_sid(sid, db):
 
 
 async def get_schedule(db, sid, date=None, page=0):
-    if not isinstance(date, datetime.datetime):
+    if not isinstance(date, datetime):
         # goes under a check to see if the inputted values are correct
         if not date: 
-            parsed_date = datetime.datetime.now() # if date is none, give current day
+            parsed_date = datetime.now() # if date is none, give current day
         else:
             parsed_date = await verify_date(date) 
     # raises an exception if the function returns a string/error. 
@@ -81,7 +89,7 @@ async def get_schedule(db, sid, date=None, page=0):
                             "items": [] 
                         }
                         # checks if schedule is from today
-                        if listing['date'] == datetime.datetime.now().strftime("%Y-%m-%d"):
+                        if listing['date'] == datetime.now().strftime("%Y-%m-%d"):
                             listing['isToday'] = True
                         # gets every item available in the first search query
                         try:
@@ -100,8 +108,8 @@ async def get_schedule(db, sid, date=None, page=0):
                                 except:
                                     title = i['ancestors_titles']['episode']
                             # converts to unix
-                            starttime = int(datetime.datetime.fromisoformat(i['published_time']['start']).timestamp())
-                            endtime = int(datetime.datetime.fromisoformat(i['published_time']['end']).timestamp())
+                            starttime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['start']), "z")
+                            endtime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['end']), "z")
                             listing['items'].append({
                                 "title": title['title'],
                                 "pid": i['pid'],
