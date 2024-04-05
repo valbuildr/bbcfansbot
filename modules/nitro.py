@@ -108,8 +108,8 @@ async def get_schedule(db, sid, date=None, page=0):
                                 except:
                                     title = i['ancestors_titles']['episode']
                             # converts to unix
-                            starttime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['start']))
-                            endtime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['end']))
+                            starttime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['start']), "z")
+                            endtime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['end']), "z")
                             listing['items'].append({
                                 "title": title['title'],
                                 "pid": i['pid'],
