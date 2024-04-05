@@ -1,16 +1,15 @@
+import discord, config, random, time, traceback, datetime, logging
+from logging import handlers
 from datetime import datetime
 from typing import List, Optional
-import discord
 from discord.ext import commands
-import config
-import random
-import time
-import traceback
 from modules import nitro
 from simplejsondb import DatabaseFolder
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: list())
+
+fansbotlog = logging.getLogger('discord.fansbot')
 
 def error_template(e):
     embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
@@ -26,7 +25,12 @@ def dt_to_timestamp(dt: datetime, f):
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user.name}.")
+    fansbotlog.info(f"Logged in as {bot.user.name}.")
+    return
+
+@bot.event
+async def on_app_command_completion(int: discord.Interaction, cmd: discord.app_commands.Command):
+    fansbotlog.info(f"Command {cmd.name} ran by {int.user.name}")
     return
 
 @bot.event
@@ -71,10 +75,8 @@ async def sync(interaction: commands.Context):
 async def aaron(interaction: commands.Context):
     no = random.randint(0, 4)
     match no:
-        case 2:
-            fileformat = "webp"
-        case _:
-            fileformat = "jpg"
+        case 2: fileformat = "webp"
+        case _: fileformat = "jpg"
     image = discord.File(f"images/aaron/{no + 1}.{fileformat}")
     await interaction.send(file=image)
 
@@ -102,7 +104,7 @@ async def programme_region_autocomplete(interaction: discord.Interaction, curren
 @discord.app_commands.autocomplete(sid=programme_sid_autocomplete,
                                     region=programme_region_autocomplete)
 @discord.app_commands.rename(sid='channel')
-async def programme(interaction: discord.InteractionResponse, 
+async def programme(interaction: discord.Interaction, 
                     sid: str="BBC News [UK]", date: str=None, page: int=1, region: str=None):
     try:
         if region: sid = f"{sid} {region}"
@@ -111,18 +113,31 @@ async def programme(interaction: discord.InteractionResponse,
         # makes the embed base
         e = discord.Embed(title=f"Schedule for {listing['passedSid']}, {listing['date']}", 
             colour=discord.Colour.red())
+        # checks which program is live, if it's a schedule from today:
+        todaylive = None
+        if listing['isToday']: 
+            for off, i in enumerate(listing['items']):
+                epochnow = int(datetime.now().timestamp())
+                # if the time right now is higher than the start time 
+                # *and* the endtime is higher than the start... it's live.
+                if epochnow > i['time'][0] and i['time'][1] > epochnow:
+                   todaylive = off 
         # sorts out every item with it's formatted date
-        for i in listing['items']:
-            items += f"<t:{i['start']}:t> - **{i['title']}**\n"
+        for off, i in enumerate(listing['items']):
+            if todaylive and off == todaylive:
+                items += f"<t:{i['time'][0]}:t> - **{i['title']} (LIVE)**\n"
+            else:
+                items += f"<t:{i['time'][0]}:t> - {i['title']}\n"
         # adds the items field after being parsed as a single-str
         e.add_field(name=f"Page {page} (times are based on your system clock):", value=items)
-        await interaction.response.send_message(embed=e, ephemeral=True)
+        await interaction.response.send_message(embed=e, ephemeral=False)
     except Exception as e:
+        fansbotlog.error(traceback.format_exc())
         msg = error_template(f"```\n{e}\n```")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
     except:
-        print(traceback.format_exc())
+        fansbotlog.error(traceback.format_exc())
         msg = error_template(f"<:idk:1100473028485324801> Check bot logs.")
         m = await interaction.response.send_message(embed=msg, ephemeral=True)
         return
@@ -130,13 +145,17 @@ async def programme(interaction: discord.InteractionResponse,
 @bot.hybrid_command(name="credits", description="Thanks everyone who helped work on this bot!")
 async def credits(interaction: commands.Context):
     e = discord.Embed(title="Credits", colour=discord.Colour.blurple())
-    e.add_field(name="Programming", value="[valbuildr](https://github.com/valbuildr)\n[slipinthedove](https://github.com/slipinthedove) (soapu64)", inline=False)
+    e.add_field(name="Programming", 
+    value="[valbuildr](https://github.com/valbuildr)\n[slipinthedove](https://github.com/slipinthedove) (soapu64)", 
+    inline=False)
 
     await interaction.send(embed=e, ephemeral=True)
 
 @bot.hybrid_command(name="issue", description="Having an issue with the bot? Learn how to report it here.")
 async def issue(interaction: commands.Context):
-    e = discord.Embed(title="Having an issue?", description="Report it on the [Github repository](https://github.com/valbuildr/bbcfansbot/issues).", colour=discord.Colour.blurple())
+    e = discord.Embed(title="Having an issue?", 
+    description="Report it on the [Github repository](https://github.com/valbuildr/bbcfansbot/issues).", 
+    colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
 
 @bot.command(name="threads")
