@@ -2,11 +2,10 @@ import discord
 from discord.ext import commands
 import config
 
-async def setup(bot: commands.Bot):
-    client = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+client = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
-    @client.command()
-    async def ping(ctx: commands.Context):
-        await ctx.send(content=f"My ping is {client.latency}!")
+@client.command()
+async def ping(ctx: commands.Context):
+    await ctx.send(content=f"My ping is {client.latency}!")
 
-    client.run(config.helper_discord_token)
+client.run(config.helper_discord_token)
