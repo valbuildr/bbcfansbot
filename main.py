@@ -4,16 +4,12 @@ from typing import List, Optional
 from discord.ext import commands
 from modules import nitro
 from simplejsondb import DatabaseFolder
+from messageutils import error_template
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: list())
 
 fansbotlog = logging.getLogger('discord.fansbot')
-
-def error_template(e):
-    embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
-    embed.add_field(name="Error", value=f"{e}")
-    return embed
 
 @bot.event
 async def on_ready():
