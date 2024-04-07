@@ -1,2 +1,2 @@
 discord_token = "" # discord bot token
-nitro = "" # apikey for nitro
+nitro_secret = "" # apikey for nitro
