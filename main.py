@@ -4,26 +4,22 @@ from typing import List, Optional
 from discord.ext import commands
 from modules import nitro
 from simplejsondb import DatabaseFolder
+from messageutils import error_template
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: list())
 
 fansbotlog = logging.getLogger('discord.fansbot')
 
-def error_template(e):
-    embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
-    embed.add_field(name="Error", value=f"{e}")
-    return embed
-
 @bot.event
 async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
     return
 
-@bot.event
-async def on_app_command_completion(int: discord.Interaction, cmd: discord.app_commands.Command):
-    fansbotlog.info(f"Command {cmd.name} ran by {int.user.name}")
-    return
+# @bot.event
+# async def on_app_command_completion(int: discord.Interaction, cmd: discord.app_commands.Command):
+#     fansbotlog.info(f"Command {cmd.name} ran by {int.user.name}")
+#     return
 
 @bot.event
 async def on_message(message: discord.Message):
@@ -152,17 +148,4 @@ async def issue(interaction: commands.Context):
     colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
 
-@bot.command(name="threads")
-async def direct_to_threads(ctx: commands.Context, mention_member: Optional[discord.Member]):
-    if bot.get_guild(1016626731785928715).get_role(1060342499111092244) or bot.get_guild(1016626731785928715).get_role(1193959337136242768) in ctx.author.roles:
-        thread_channels = [1048544405977579631, 1058384048386490368]
-        if ctx.channel.id in thread_channels:
-            c = ""
-            if mention_member:
-                c += f"{mention_member.mention} "
-            
-            c += "Please keep discussion in threads!"
-            
-            await ctx.send(content=c)
-
-bot.run(config.discord_token)
+bot.run(config.main_discord_token)
