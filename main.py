@@ -86,6 +86,32 @@ async def programme_region_autocomplete(interaction: discord.Interaction, curren
         for option in options if current.lower() in option.lower()
     ]
 
+@bot.command(hidden=True)
+async def start_nf_helper(ctx: commands.Context):
+    await ctx.reply(content="Starting...")
+    try:
+        await bot.load_extension("ext.news_fans_helper")
+    except commands.ExtensionNotFound as e:
+        fansbotlog.error(e)
+        t = error_template(f"```{e}```")
+        await ctx.send(embed=t)
+    except commands.ExtensionAlreadyLoaded as e:
+        fansbotlog.error(e)
+        t = error_template(f"```{e}```")
+        await ctx.send(embed=t)
+    except commands.NoEntryPointError as e:
+        fansbotlog.error(e)
+        t = error_template(f"```{e}```")
+        await ctx.send(embed=t)
+    except commands.ExtensionFailed as e:
+        fansbotlog.error(e)
+        t = error_template(f"```{e}```")
+        await ctx.send(embed=t)
+    except:
+        fansbotlog.error(e)
+        t = error_template(f"<:idk:1100473028485324801> Check bot logs.")
+        await ctx.send(embed=t)
+
 # schedule works best as a slash-only command. 
 # primarily because it's more practical to get the arguments from the user.
 @bot.tree.command(name="schedule", description="Gets the latest schedules from the BBC services!")
@@ -165,4 +191,4 @@ async def direct_to_threads(ctx: commands.Context, mention_member: Optional[disc
             
             await ctx.send(content=c)
 
-bot.run(config.discord_token)
+bot.run(config.main_discord_token)
