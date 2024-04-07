@@ -20,10 +20,10 @@ async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
     return
 
-@bot.event
-async def on_app_command_completion(int: discord.Interaction, cmd: discord.app_commands.Command):
-    fansbotlog.info(f"Command {cmd.name} ran by {int.user.name}")
-    return
+# @bot.event
+# async def on_app_command_completion(int: discord.Interaction, cmd: discord.app_commands.Command):
+#     fansbotlog.info(f"Command {cmd.name} ran by {int.user.name}")
+#     return
 
 @bot.event
 async def on_message(message: discord.Message):
