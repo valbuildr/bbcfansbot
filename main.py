@@ -152,17 +152,4 @@ async def issue(interaction: commands.Context):
     colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
 
-@bot.command(name="threads")
-async def direct_to_threads(ctx: commands.Context, mention_member: Optional[discord.Member]):
-    if bot.get_guild(1016626731785928715).get_role(1060342499111092244) or bot.get_guild(1016626731785928715).get_role(1193959337136242768) in ctx.author.roles:
-        thread_channels = [1048544405977579631, 1058384048386490368]
-        if ctx.channel.id in thread_channels:
-            c = ""
-            if mention_member:
-                c += f"{mention_member.mention} "
-            
-            c += "Please keep discussion in threads!"
-            
-            await ctx.send(content=c)
-
 bot.run(config.main_discord_token)
