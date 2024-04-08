@@ -16,6 +16,7 @@ async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
     return
 
+# should only be used for debugging
 # @bot.event
 # async def on_app_command_completion(int: discord.Interaction, cmd: discord.app_commands.Command):
 #     fansbotlog.info(f"Command {cmd.name} ran by {int.user.name}")
@@ -68,6 +69,10 @@ async def aaron(interaction: commands.Context):
     image = discord.File(f"images/aaron/{no + 1}.{fileformat}")
     await interaction.send(file=image)
 
+@bot.tree.command(name="poll", description="Create a poll.")
+async def poll(interaction: discord.Interaction):
+    ...
+
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
     options = nitro_db['NitroSIDs']['channels']
     return [
@@ -94,6 +99,7 @@ async def programme_region_autocomplete(interaction: discord.Interaction, curren
 @discord.app_commands.rename(sid='channel')
 async def programme(interaction: discord.Interaction, 
                     sid: str="BBC News [UK]", date: str=None, page: int=1, region: str=None):
+    await interaction.response.defer(ephemeral=False)
     try:
         if region: sid = f"{sid} {region}"
         listing = await nitro.get_schedule(nitro_db, sid, date, page)
@@ -120,16 +126,16 @@ async def programme(interaction: discord.Interaction,
                 items += f"<t:{starttime}:t> - {i['title']}\n"
         # adds the items field after being parsed as a single-str
         e.add_field(name=f"Page {page} (times are based on your system clock):", value=items)
-        await interaction.response.send_message(embed=e, ephemeral=False)
+        await interaction.followup.send(embed=e)
     except Exception as e:
         fansbotlog.error(traceback.format_exc())
         msg = error_template(f"```\n{e}\n```")
-        m = await interaction.response.send_message(embed=msg, ephemeral=True)
+        m = await interaction.followup.send(embed=msg)
         return
     except:
         fansbotlog.error(traceback.format_exc())
         msg = error_template(f"<:idk:1100473028485324801> Check bot logs.")
-        m = await interaction.response.send_message(embed=msg, ephemeral=True)
+        m = await interaction.followup.send(embed=msg)
         return
 
 @bot.hybrid_command(name="credits", description="Thanks everyone who helped work on this bot!")
