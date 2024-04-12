@@ -74,10 +74,6 @@ async def aaron(interaction: commands.Context):
     image = discord.File(f"images/aaron/{no + 1}.{fileformat}")
     await interaction.send(file=image)
 
-@bot.tree.command(name="poll", description="Create a poll.")
-async def poll(interaction: discord.Interaction):
-    ...
-
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
     options = nitro_db['NitroSIDs']['channels']
     return [
