@@ -163,3 +163,7 @@ cython_debug/
 config.py
 
 images/
+
+nitro-db/
+
+db/
