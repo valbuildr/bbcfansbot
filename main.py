@@ -2,7 +2,7 @@ import discord, config, random, time, traceback, datetime, logging, asyncio
 from datetime import datetime
 from typing import List, Optional
 from discord.ext import commands
-from modules import nitro
+from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
 
