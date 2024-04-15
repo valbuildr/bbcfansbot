@@ -5,6 +5,7 @@ from discord.ext import commands
 from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
+from zoneinfo import ZoneInfo
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: list())
@@ -14,29 +15,75 @@ fansbotlog = logging.getLogger('discord.fansbot')
 nitroSIDs = { "region": [ "Northern Ireland", "Scotland", "Wales", "South", "East Midlands", "West Midlands", "East Yorkshire", "North West", "North East", "London", "Sourth East", "South West", "West", "East", "South", "Yorks" ], "channels": [ "BBC News [UK]", "BBC News [World]", "BBC One", "BBC Two", "BBC Three", "BBC Four", "Cbeebies", "CBBC", "BBC Parliament", "BBC Alba", "BBC Scotland" ], "BBC News [World]": "bbc_world_service", "BBC News [UK]": "bbc_news24", "BBC One Scotland": "bbc_one_scotland", "BBC One North East": "bbc_one_north_east", "BBC One North West": "bbc_one_north_west", "BBC One East Midlands": "bbc_one_east_midlands", "BBC One West Midlands": "bbc_one_west_midlands", "BBC One East Yorkshire": "bbc_one_east_yorkshire", "BBC One London": "bbc_one_london", "BBC One South East": "bbc_one_south_east", "BBC One South West": "bbc_one_south_west", "BBC One Northern Ireland": "bbc_one_northern_ireland", "BBC One Wales": "bbc_one_wales", "BBC One West": "bbc_one_west", "BBC One East": "bbc_one_east", "BBC One South": "bbc_one_south", "BBC One Yorks": "bbc_one_yorks", "BBC One": "bbc_one_hd", "BBC Two England": "bbc_two_england", "BBC Two Scotland": "bbc_two_scotland", "BBC Two Northern Ireland": "bbc_two_northern_ireland_digital", "BBC Two Wales": "bbc_two_wales_digital", "BBC Two": "bbc_two_hd", "BBC Three": "bbc_three_hd", "BBC Four": "bbc_four_hd", "CBeebies": "cbeebies_hd", "CBBC": "cbbc_hd", "BBC Parliament": "bbc_parliament", "BBC Alba": "bbc_alba_hd", "BBC Scotland": "bbc_scotland_hd" }
 if db["NitroSIDs"] != nitroSIDs: db["NitroSIDs"] = nitroSIDs
 
-
 # syntax: [status id, value of discord.StatusType enum, activity name]
-basestatuses = [["bi01", 3, "num make fire graphics 🔥"], ["bi02", 3, "Maryam bend a spoon"], ["bi03", 2, "The Shipping Forecast"], ["bi04", 2, "David Lowe's amazing music"], ["bi05", 3, "the BBC News channel"]]
+basestatuses = [["bi01", 3, "num make fire graphics 🔥"], ["bi02", 3, "Maryam bend a spoon"], ["bi03", 2, "The Shipping Forecast"], ["bi04", 2, "David Lowe's amazing music"], ["bi05", 3, "the BBC News channel"], ["bi06", 3, "Talking Business with Aaron Heslehurst"], ["bi07", 4, "BBC World Service"]]
 if db["statuses"] != basestatuses: db["statuses"] = basestatuses
 
 async def status_task():
     while True:
-        rand = random.choice(db["statuses"])
+        now = datetime.now(ZoneInfo("Europe/London"))
 
-        typ = discord.ActivityType.playing
+        regions = ["Look North (NE&C)", "East Midlands Today", "BBC London", "North West Tonight", "Midlands Today", "South East Today", "Look North (Yorks)", "Look East", "South Today", "Look North (Yorks and Lincs)", "Points West", "Spotlight", "Reporting Scotland", "Wales Today", "Newsline"]
 
-        match rand[1]:
-            case 1:
-                typ = discord.ActivityType.streaming
-            case 2:
-                typ = discord.ActivityType.listening
-            case 3:
-                typ = discord.ActivityType.watching
-            case 5:
-                typ = discord.ActivityType.competing
+        weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
-        await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
-        await asyncio.sleep(60)
+        if now.strftime("%a") in weekdays:
+            if now.hour == 6 or now.hour == 7 or now.hour == 8 or now.hour == 9:
+                await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="BBC Breakfast"))
+            elif now.hour == 13 and now.minute >= 30:
+                await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at One"))
+            elif now.hour == 13 and now.minute <= 31 and now.minute <= 45:
+                random_region = random.choice(regions)
+                if random_region == "North West Tonight":
+                    random_region = "North West Today"
+                
+                await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
+            elif now.hour == 18 and now.minute >= 31:
+                await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at Six"))
+            elif now.hour == 18 and now.minute <= 31 and now.minute <= 55:
+                random_region = random.choice(regions)
+
+                await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
+            elif now.hour == 22 and now.minute >= 30:
+                await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at Ten"))
+            elif now.hour == 22 and now.minute <= 30 and now.minute <= 40:
+                random_region = random.choice(regions)
+
+                await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
+            else:
+                rand = random.choice(db["statuses"])
+
+                typ = discord.ActivityType.playing
+
+                match rand[1]:
+                    case 1:
+                        typ = discord.ActivityType.streaming
+                    case 2:
+                        typ = discord.ActivityType.listening
+                    case 3:
+                        typ = discord.ActivityType.watching
+                    case 5:
+                        typ = discord.ActivityType.competing
+            
+                await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
+        else:
+            rand = random.choice(db["statuses"])
+
+            typ = discord.ActivityType.playing
+
+            match rand[1]:
+                case 1:
+                    typ = discord.ActivityType.streaming
+                case 2:
+                    typ = discord.ActivityType.listening
+                case 3:
+                    typ = discord.ActivityType.watching
+                case 5:
+                    typ = discord.ActivityType.competing
+        
+            await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
+
+        await asyncio.sleep(60) # check every minute
 
 @bot.event
 async def on_ready():
