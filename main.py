@@ -1,4 +1,4 @@
-import discord, config, random, time, traceback, datetime, logging
+import discord, config, random, time, traceback, datetime, logging, asyncio
 from datetime import datetime
 from typing import List, Optional
 from discord.ext import commands
@@ -7,17 +7,42 @@ from simplejsondb import DatabaseFolder
 from messageutils import error_template
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
-nitro_db = DatabaseFolder('nitro-db', default_factory=lambda _: list())
+db = DatabaseFolder('db', default_factory=lambda _: list())
 
 fansbotlog = logging.getLogger('discord.fansbot')
+
+nitroSIDs = { "region": [ "Northern Ireland", "Scotland", "Wales", "South", "East Midlands", "West Midlands", "East Yorkshire", "North West", "North East", "London", "Sourth East", "South West", "West", "East", "South", "Yorks" ], "channels": [ "BBC News [UK]", "BBC News [World]", "BBC One", "BBC Two", "BBC Three", "BBC Four", "Cbeebies", "CBBC", "BBC Parliament", "BBC Alba", "BBC Scotland" ], "BBC News [World]": "bbc_world_service", "BBC News [UK]": "bbc_news24", "BBC One Scotland": "bbc_one_scotland", "BBC One North East": "bbc_one_north_east", "BBC One North West": "bbc_one_north_west", "BBC One East Midlands": "bbc_one_east_midlands", "BBC One West Midlands": "bbc_one_west_midlands", "BBC One East Yorkshire": "bbc_one_east_yorkshire", "BBC One London": "bbc_one_london", "BBC One South East": "bbc_one_south_east", "BBC One South West": "bbc_one_south_west", "BBC One Northern Ireland": "bbc_one_northern_ireland", "BBC One Wales": "bbc_one_wales", "BBC One West": "bbc_one_west", "BBC One East": "bbc_one_east", "BBC One South": "bbc_one_south", "BBC One Yorks": "bbc_one_yorks", "BBC One": "bbc_one_hd", "BBC Two England": "bbc_two_england", "BBC Two Scotland": "bbc_two_scotland", "BBC Two Northern Ireland": "bbc_two_northern_ireland_digital", "BBC Two Wales": "bbc_two_wales_digital", "BBC Two": "bbc_two_hd", "BBC Three": "bbc_three_hd", "BBC Four": "bbc_four_hd", "CBeebies": "cbeebies_hd", "CBBC": "cbbc_hd", "BBC Parliament": "bbc_parliament", "BBC Alba": "bbc_alba_hd", "BBC Scotland": "bbc_scotland_hd" }
+if db["NitroSIDs"] != nitroSIDs: db["NitroSIDs"] = nitroSIDs
+
+
+# syntax: [status id, value of discord.StatusType enum, activity name]
+basestatuses = [["bi01", 3, "num make fire graphics 🔥"], ["bi02", 3, "Maryam bend a spoon"], ["bi03", 2, "The Shipping Forecast"], ["bi04", 2, "David Lowe's amazing music"], ["bi05", 3, "the BBC News channel"]]
+if db["statuses"] != basestatuses: db["statuses"] = basestatuses
+
+async def status_task():
+    while True:
+        rand = random.choice(db["statuses"])
+
+        typ = discord.ActivityType.playing
+
+        match rand[1]:
+            case 1:
+                typ = discord.ActivityType.streaming
+            case 2:
+                typ = discord.ActivityType.listening
+            case 3:
+                typ = discord.ActivityType.watching
+            case 5:
+                typ = discord.ActivityType.competing
+
+        await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
+        await asyncio.sleep(60)
 
 @bot.event
 async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
 
-    if nitro_db["NitroSIDs"] == None:
-        nitro_db["NitroSIDs"] = { "region": [ "Northern Ireland", "Scotland", "Wales", "South", "East Midlands", "West Midlands", "East Yorkshire", "North West", "North East", "London", "Sourth East", "South West", "West", "East", "South", "Yorks" ], "channels": [ "BBC News [UK]", "BBC News [World]", "BBC One", "BBC Two", "BBC Three", "BBC Four", "Cbeebies", "CBBC", "BBC Parliament", "BBC Alba", "BBC Scotland" ], "BBC News [World]": "bbc_world_service", "BBC News [UK]": "bbc_news24", "BBC One Scotland": "bbc_one_scotland", "BBC One North East": "bbc_one_north_east", "BBC One North West": "bbc_one_north_west", "BBC One East Midlands": "bbc_one_east_midlands", "BBC One West Midlands": "bbc_one_west_midlands", "BBC One East Yorkshire": "bbc_one_east_yorkshire", "BBC One London": "bbc_one_london", "BBC One South East": "bbc_one_south_east", "BBC One South West": "bbc_one_south_west", "BBC One Northern Ireland": "bbc_one_northern_ireland", "BBC One Wales": "bbc_one_wales", "BBC One West": "bbc_one_west", "BBC One East": "bbc_one_east", "BBC One South": "bbc_one_south", "BBC One Yorks": "bbc_one_yorks", "BBC One": "bbc_one_hd", "BBC Two England": "bbc_two_england", "BBC Two Scotland": "bbc_two_scotland", "BBC Two Northern Ireland": "bbc_two_northern_ireland_digital", "BBC Two Wales": "bbc_two_wales_digital", "BBC Two": "bbc_two_hd", "BBC Three": "bbc_three_hd", "BBC Four": "bbc_four_hd", "CBeebies": "cbeebies_hd", "CBBC": "cbbc_hd", "BBC Parliament": "bbc_parliament", "BBC Alba": "bbc_alba_hd", "BBC Scotland": "bbc_scotland_hd" }
-        print("Nitro DB values missing, automatically added.")
+    bot.loop.create_task(status_task())
 
     return
 
@@ -29,8 +54,8 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
-    if "bbc fans bot" in message.content.lower() or bot.user.mentioned_in(message):
-        await message.channel.send("hellow!")
+    if bot.user.mentioned_in(message):
+        await message.add_reaction("👋")
 
     await bot.process_commands(message)
 
@@ -75,14 +100,14 @@ async def aaron(interaction: commands.Context):
     await interaction.send(file=image)
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = nitro_db['NitroSIDs']['channels']
+    options = db['NitroSIDs']['channels']
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
     ]
 
 async def programme_region_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = nitro_db['NitroSIDs']['region']
+    options = db['NitroSIDs']['region']
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
@@ -103,7 +128,7 @@ async def programme(interaction: discord.Interaction,
     await interaction.response.defer(ephemeral=False)
     try:
         if region: sid = f"{sid} {region}"
-        listing = await nitro.get_schedule(nitro_db, sid, date, page)
+        listing = await nitro.get_schedule(db, sid, date, page)
         items = ""
         # makes the embed base
         e = discord.Embed(title=f"Schedule for {listing['passedSid']}, {listing['date']}", 
