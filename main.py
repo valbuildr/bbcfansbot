@@ -132,12 +132,18 @@ async def nf_start(ctx: commands.Context):
     if nf_role in ctx.author.roles:
         run_statuses = False
         await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="BBC News Fans"))
+        await ctx.send(content="Set status!")
+    else:
+        await ctx.send(content="You can't run this command.")
 
 @bot.command(name="nf-live-end")
 async def nf_end(ctx: commands.Context):
     nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
     if nf_role in ctx.author.roles:
         run_statuses = True
+        await ctx.send(content="Changed status!")
+    else:
+        await ctx.send(content="You can't run this command.")
 
 @bot.command(name="sync")
 async def sync(interaction: commands.Context):
