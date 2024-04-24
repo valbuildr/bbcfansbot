@@ -1,11 +1,10 @@
-import discord, config, random, time, traceback, datetime, logging, asyncio
+import discord, config, random, traceback, datetime, logging, status
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 from discord.ext import commands
 from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
-from zoneinfo import ZoneInfo
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: list())
@@ -19,80 +18,11 @@ if db["NitroSIDs"] != nitroSIDs: db["NitroSIDs"] = nitroSIDs
 basestatuses = [["bi01", 3, "num make fire graphics 🔥"], ["bi02", 3, "Maryam bend a spoon"], ["bi03", 2, "The Shipping Forecast"], ["bi04", 2, "David Lowe's amazing music"], ["bi05", 3, "the BBC News channel"], ["bi06", 3, "Talking Business with Aaron Heslehurst"], ["bi07", 4, "BBC World Service"]]
 if db["statuses"] != basestatuses: db["statuses"] = basestatuses
 
-run_statuses = True
-
-async def status_task():
-    while True:
-        while run_statuses:
-            now = datetime.now(ZoneInfo("Europe/London"))
-
-            regions = ["Look North (NE&C)", "East Midlands Today", "BBC London", "North West Tonight", "Midlands Today", "South East Today", "Look North (Yorks)", "Look East", "South Today", "Look North (Yorks and Lincs)", "Points West", "Spotlight", "Reporting Scotland", "Wales Today", "Newsline"]
-
-            weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-
-            if now.strftime("%a") in weekdays:
-                if now.hour == 6 or now.hour == 7 or now.hour == 8 or now.hour == 9:
-                    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="BBC Breakfast"))
-                elif now.hour == 13 and now.minute >= 30:
-                    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at One"))
-                elif now.hour == 13 and now.minute <= 31 and now.minute <= 45:
-                    random_region = random.choice(regions)
-                    if random_region == "North West Tonight":
-                        random_region = "North West Today"
-                    
-                    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
-                elif now.hour == 18 and now.minute >= 31:
-                    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at Six"))
-                elif now.hour == 18 and now.minute <= 31 and now.minute <= 55:
-                    random_region = random.choice(regions)
-
-                    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
-                elif now.hour == 22 and now.minute >= 30:
-                    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at Ten"))
-                elif now.hour == 22 and now.minute <= 30 and now.minute <= 40:
-                    random_region = random.choice(regions)
-
-                    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
-                else:
-                    rand = random.choice(db["statuses"])
-
-                    typ = discord.ActivityType.playing
-
-                    match rand[1]:
-                        case 1:
-                            typ = discord.ActivityType.streaming
-                        case 2:
-                            typ = discord.ActivityType.listening
-                        case 3:
-                            typ = discord.ActivityType.watching
-                        case 5:
-                            typ = discord.ActivityType.competing
-                
-                    await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
-            else:
-                rand = random.choice(db["statuses"])
-
-                typ = discord.ActivityType.playing
-
-                match rand[1]:
-                    case 1:
-                        typ = discord.ActivityType.streaming
-                    case 2:
-                        typ = discord.ActivityType.listening
-                    case 3:
-                        typ = discord.ActivityType.watching
-                    case 5:
-                        typ = discord.ActivityType.competing
-            
-                await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
-
-            await asyncio.sleep(60) # check every minute
-
 @bot.event
 async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
 
-    bot.loop.create_task(status_task())
+    bot.loop.create_task(status.task(bot, db))
 
     return
 
@@ -130,7 +60,7 @@ async def ping(ctx: commands.Context):
 async def nf_start(ctx: commands.Context):
     nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
     if nf_role in ctx.author.roles:
-        run_statuses = False
+        status.run = False
         await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="BBC News Fans"))
         await ctx.send(content="Set status!")
     else:
@@ -140,7 +70,7 @@ async def nf_start(ctx: commands.Context):
 async def nf_end(ctx: commands.Context):
     nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
     if nf_role in ctx.author.roles:
-        run_statuses = True
+        status.run = True
         await ctx.send(content="Changed status!")
     else:
         await ctx.send(content="You can't run this command.")
