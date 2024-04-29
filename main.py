@@ -192,7 +192,8 @@ async def programme(interaction: discord.Interaction,
                 else:
                     items += f"⬛ <t:{starttime}:t> - {i['title']}\n"
         # adds the items field after being parsed as a single-str
-        e.add_field(name=f"Page {page}/{math.ceil(listing['total_items'] / 10)} (times are based on your system clock):", value=items)
+        e.add_field(name=f"Page {page}/{math.ceil(listing['total_items'] / 10)}:", value=items)
+        e.set_footer(text="Times are based on your system clock.")
         await interaction.followup.send(embed=e)
     except Exception as e:
         fansbotlog.error(traceback.format_exc())
