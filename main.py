@@ -1,4 +1,4 @@
-import discord, config, random, traceback, datetime, logging, status
+import discord, config, random, traceback, datetime, logging, status, math
 from datetime import datetime
 from typing import List
 from discord.ext import commands
@@ -23,6 +23,8 @@ async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
 
     bot.loop.create_task(status.task(bot, db))
+
+    # await bot.load_extension("ext.economy")
 
     return
 
@@ -56,7 +58,7 @@ async def on_member_update(before: discord.Member, after: discord.Member):
 async def ping(ctx: commands.Context):
     await ctx.send(content=f"## Pong!\nMy ping is {round(bot.latency * 1000)}ms.")
 
-@bot.command(name="nf-live-start")
+@bot.command(name="nf-live-start", hidden=True)
 async def nf_start(ctx: commands.Context):
     nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
     if nf_role in ctx.author.roles:
@@ -66,7 +68,7 @@ async def nf_start(ctx: commands.Context):
     else:
         await ctx.send(content="You can't run this command.")
 
-@bot.command(name="nf-live-end")
+@bot.command(name="nf-live-end", hidden=True)
 async def nf_end(ctx: commands.Context):
     nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
     if nf_role in ctx.author.roles:
@@ -131,7 +133,7 @@ async def programme(interaction: discord.Interaction,
         items = ""
         # makes the embed base
         e = discord.Embed(title=f"Schedule for {listing['passedSid']}, {listing['date']}", 
-            colour=discord.Colour.red())
+            colour=discord.Colour.blurple())
         # checks which program is live, if it's a schedule from today:
         todaylive = None
         if listing['isToday']: 
@@ -145,12 +147,52 @@ async def programme(interaction: discord.Interaction,
         # sorts out every item with it's formatted date
         for off, i in enumerate(listing['items']):
             starttime = i['time'][0]
-            if todaylive and off == todaylive:
-                items += f"<t:{starttime}:t> - **{i['title']} (LIVE)**\n"
-            else:
-                items += f"<t:{starttime}:t> - {i['title']}\n"
+            if todaylive and off == todaylive: # live
+                if i['title'] == "World Business Report": # wbr emoji, to be replaced with business today
+                    items += f"<:business:1229821037860880515> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "BBC News": # news emoji
+                    items += f"<:news:1229821049986875474> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "BBC News Now": # news now emoji
+                    items += f"<:newsnow:1229891488662425721> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "BBC News at One": # nao emoji
+                    items += f"<:one:1229821045393981460> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "": # regions emoji
+                    # TODO: get a list of region programme names
+                    items += f"<:regions:1229438785737986068> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "BBC News at Six": # nas emoji
+                    items += f"<:six:1229821042432671825> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "Sportsday": # sport emoji
+                    items += f"<:sport:1229829293094469774> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "BBC News at Ten": # nat emoji
+                    items += f"<:ten:1229821040637513799> <t:{starttime}:t> - **{i['title']}**\n"
+                elif i['title'] == "Pointless": # pointless emoji
+                    items += f"<:pointless:1233447132619608237> <t:{starttime}:t> - **{i['title']}**\n"
+                else:
+                    items += f"<a:LivePulseRed:1233447000574398557> <t:{starttime}:t> - **{i['title']}**\n"
+            else: # not live
+                if i['title'] == "World Business Report": # wbr emoji, to be replaced with business today
+                    items += f"<:business:1229821037860880515> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News": # news emoji
+                    items += f"<:news:1229821049986875474> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News Now": # news now emoji
+                    items += f"<:newsnow:1229891488662425721> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News at One": # nao emoji
+                    items += f"<:one:1229821045393981460> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "": # regions emoji
+                    # TODO: get a list of region programme names
+                    items += f"<:regions:1229438785737986068> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News at Six": # nas emoji
+                    items += f"<:six:1229821042432671825> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "Sportsday": # sport emoji
+                    items += f"<:sport:1229829293094469774> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News at Ten": # nat emoji
+                    items += f"<:ten:1229821040637513799> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "Pointless": # pointless emoji
+                    items += f"<:pointless:1233447132619608237> <t:{starttime}:t> - {i['title']}\n"
+                else:
+                    items += f"⬛ <t:{starttime}:t> - {i['title']}\n"
         # adds the items field after being parsed as a single-str
-        e.add_field(name=f"Page {page} (times are based on your system clock):", value=items)
+        e.add_field(name=f"Page {page}/{math.ceil(listing['total_items'] / 10)} (times are based on your system clock):", value=items)
         await interaction.followup.send(embed=e)
     except Exception as e:
         fansbotlog.error(traceback.format_exc())

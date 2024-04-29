@@ -1,4 +1,4 @@
-import config, aiohttp, re 
+import config, aiohttp, re, math
 from datetime import datetime
 
 def dt_to_timestamp(dt: datetime, f):
@@ -67,8 +67,12 @@ async def get_schedule(db, sid, date=None, page=0):
         if not isinstance(parsedsid, str): raise Exception("ERROR - Incorrect Channel.") # raise error if sid given is incorrect
         # mixin titles is needed to get the proper related info about the scheduled broadcast's naming.
         params = { 
-            'api_key': config.nitro_secret, 'sid': parsedsid, 'mixin': 'titles', 
-            'schedule_day': parsed_date.strftime("%Y-%m-%d"), 'page_size': 25, 'page': page
+            'api_key': config.nitro_secret,
+            'sid': parsedsid,
+            'mixin': 'titles', 
+            'schedule_day': parsed_date.strftime("%Y-%m-%d"),
+            'page_size': 10,
+            'page': page
         }
         # nitro uses xml by default, so we need to specify that it must only accept json for it to return into such syntax.
         async with aiohttp.ClientSession() as sesh:
@@ -86,7 +90,8 @@ async def get_schedule(db, sid, date=None, page=0):
                             "passedSid": sid,
                             "date": parsed_date.strftime("%Y-%m-%d"),
                             "isToday": False,
-                            "items": [] 
+                            "items": [],
+                            "total_items": j['nitro']['results']['total']
                         }
                         # checks if schedule is from today
                         if listing['date'] == datetime.now().strftime("%Y-%m-%d"):
@@ -96,7 +101,10 @@ async def get_schedule(db, sid, date=None, page=0):
                             results = j['nitro']['results']['items']
                         # fails if there are total results, but there are no more items.
                         except:
-                            raise Exception("ERROR - No Items")
+                            if math.ceil(j['nitro']['results']['total'] / 10) < page:
+                                raise Exception("ERROR - Page doesnt exist.")
+                            else:
+                                raise Exception("ERROR - No Items")
                         for i in results:
                             # not always a program will return it's title by the brand 
                             # (nor by the series) value, so we add a failsafe to ensure it'll get it from the one available.
