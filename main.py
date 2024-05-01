@@ -194,6 +194,7 @@ async def programme(interaction: discord.Interaction,
         # adds the items field after being parsed as a single-str
         e.add_field(name=f"Page {page}/{math.ceil(listing['total_items'] / 10)}:", value=items)
         e.set_footer(text="Times are based on your system clock.")
+        e.url = await nitro.get_link(db, sid)
         await interaction.followup.send(embed=e)
     except Exception as e:
         fansbotlog.error(traceback.format_exc())

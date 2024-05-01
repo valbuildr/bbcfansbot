@@ -50,8 +50,6 @@ async def resolve_sid(sid, db):
         else:
             continue
 
-
-
 async def get_schedule(db, sid, date=None, page=0):
     if not isinstance(date, datetime):
         # goes under a check to see if the inputted values are correct
@@ -131,3 +129,49 @@ async def get_schedule(db, sid, date=None, page=0):
                 else:
                     raise Exception(f"ERROR - E{resp.status}")
 
+async def get_link(db, sid, date=None):
+    if not isinstance(date, datetime):
+        if not date:
+            parsed_date = datetime.now()
+        else:
+            parsed_date = await verify_date(date)
+        
+    if isinstance(parsed_date, str):
+        raise Exception(f"ERROR - {parsed_date}")
+    else:
+        sid = await resolve_sid(sid, db)
+
+        links = {
+            "bbc_world_service": "https://www.bbc.co.uk/schedules/p00fzl9j", # news, europe
+            "bbc_news24": "https://www.bbc.co.uk/schedules/p01kv924", # news, uk hd
+            "bbc_one_scotland": "https://www.bbc.co.uk/schedules/p013blmc", # one, scotland hd
+            "bbc_one_north_east": "https://www.bbc.co.uk/schedules/p00fzl6r", # one, north east & cumbria hd
+            "bbc_one_north_west": "https://www.bbc.co.uk/schedules/p09v556j", # one, north west hd
+            "bbc_one_east_midlands": "https://www.bbc.co.uk/schedules/p09v5563", # one, east midlands hd
+            "bbc_one_west_midlands": "https://www.bbc.co.uk/schedules/p09v557h", # one, west midlands hd
+            "bbc_one_east_yorkshire": "https://www.bbc.co.uk/schedules/p09v5567", # one, yorks & lincs hd
+            "bbc_one_london": "https://www.bbc.co.uk/schedules/p09v556b", # one, london hd
+            "bbc_one_south_east": "https://www.bbc.co.uk/schedules/p09v5570", # one, south east hd
+            "bbc_one_south_west": "https://www.bbc.co.uk/schedules/p09v5575", # one, south west hd
+            "bbc_one_northern_ireland": "https://www.bbc.co.uk/schedules/p00zskxc", # one, northern ireland hd
+            "bbc_one_wales": "https://www.bbc.co.uk/schedules/p013bkc7", # one, wales hd
+            "bbc_one_west": "https://www.bbc.co.uk/schedules/p09v557b", # one, west hd
+            "bbc_one_east": "https://www.bbc.co.uk/schedules/p09v5561", # one, east hd
+            "bbc_one_south": "https://www.bbc.co.uk/schedules/p09v556t", # one, south hd
+            "bbc_one_yorks": "https://www.bbc.co.uk/schedules/p09v557j", # one, yorkshire hd
+            "bbc_one_hd": "https://www.bbc.co.uk/schedules/p00fzl6n", # one, hd
+            "bbc_two_england": "https://www.bbc.co.uk/schedules/p00fzl97", # two, england
+            "bbc_two_scotland": "https://www.bbc.co.uk/schedules/p015pksy", # two, hd (cant find scotland)
+            "bbc_two_northern_ireland_digital": "https://www.bbc.co.uk/schedules/p06ngcbm", # two, northern ireland hd
+            "bbc_two_wales_digital": "https://www.bbc.co.uk/schedules/p06ngc52", # two, wales hd
+            "bbc_two_hd": "https://www.bbc.co.uk/schedules/p015pksy", # two, hd
+            "bbc_three_hd": "https://www.bbc.co.uk/schedules/p01kv7xf", # three, hd
+            "bbc_four_hd": "https://www.bbc.co.uk/schedules/p01kv81d", # four, hd
+            "cbeebies_hd": "https://www.bbc.co.uk/schedules/p01kv8yz", # cbeebies, hd
+            "cbbc_hd": "https://www.bbc.co.uk/schedules/p01kv86b", # cbbc, hd
+            "bbc_parliament": "https://www.bbc.co.uk/schedules/p09vztlr", # parliament, hd
+            "bbc_alba_hd": "https://www.bbc.co.uk/schedules/p09vztlq", # alba, hd
+            "bbc_scotland_hd": "https://www.bbc.co.uk/schedules/p06p396y" # scotland, hd
+        }
+
+        return links[sid]
