@@ -1,4 +1,4 @@
-import discord, config, random, traceback, datetime, logging, status, math
+import discord, config, random, traceback, datetime, logging, status, math, os
 from datetime import datetime
 from typing import List
 from discord.ext import commands
@@ -91,13 +91,14 @@ async def sync(interaction: commands.Context):
         await m.delete(10)
         return
 
+def random_file(path: str):
+    files = os.listdir(path)
+    return random.choice(files)
+
 @bot.hybrid_command(name="aaron", description="Sends a random picture of Aaron Heslehurst!")
 async def aaron(interaction: commands.Context):
-    no = random.randint(0, 4)
-    match no:
-        case 2: fileformat = "webp"
-        case _: fileformat = "jpg"
-    image = discord.File(f"images/aaron/{no + 1}.{fileformat}")
+    imgpath = random_file("images/aaron")
+    image = discord.File(f"images/aaron/{imgpath}")
     await interaction.send(file=image)
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
