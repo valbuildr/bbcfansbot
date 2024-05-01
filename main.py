@@ -148,7 +148,7 @@ async def programme(interaction: discord.Interaction,
         for off, i in enumerate(listing['items']):
             starttime = i['time'][0]
             if todaylive and off == todaylive: # live
-                if i['title'] == "World Business Report": # wbr emoji, to be replaced with business today
+                if i['title'] == "World Business Report" or i['title'] == "Asia Business Report": # wbr/abr emoji, to be replaced with business today
                     items += f"<:business:1229821037860880515> <t:{starttime}:t> - **{i['title']}**\n"
                 elif i['title'] == "BBC News": # news emoji
                     items += f"<:news:1229821049986875474> <t:{starttime}:t> - **{i['title']}**\n"
@@ -170,7 +170,7 @@ async def programme(interaction: discord.Interaction,
                 else:
                     items += f"<a:LivePulseRed:1233447000574398557> <t:{starttime}:t> - **{i['title']}**\n"
             else: # not live
-                if i['title'] == "World Business Report": # wbr emoji, to be replaced with business today
+                if i['title'] == "World Business Report" or i['title'] == "Asia Business Report": # wbr/abr emoji, to be replaced with business today
                     items += f"<:business:1229821037860880515> <t:{starttime}:t> - {i['title']}\n"
                 elif i['title'] == "BBC News": # news emoji
                     items += f"<:news:1229821049986875474> <t:{starttime}:t> - {i['title']}\n"
