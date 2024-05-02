@@ -6,7 +6,7 @@ from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
 
-run_beta = True
+run_beta = False
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: dict())
