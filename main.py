@@ -45,6 +45,12 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if bot.user.mentioned_in(message):
         await message.add_reaction("👋")
+    
+    if message.content == "(please do consider using vxtwitter please and thank you)" and message.author.id == 1091826653367386254:
+        await message.delete()
+
+    if ":pepeAngryPing:"in  message.content and message.author.id == 1091826653367386254:
+        await message.delete()
 
     await bot.process_commands(message)
 
