@@ -6,17 +6,24 @@ from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
 
+run_beta = True
+
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
-db = DatabaseFolder('db', default_factory=lambda _: list())
+db = DatabaseFolder('db', default_factory=lambda _: dict())
+
+if run_beta:
+    bot.command_prefix = "."
 
 fansbotlog = logging.getLogger('discord.fansbot')
 
 nitroSIDs = { "region": [ "Northern Ireland", "Scotland", "Wales", "South", "East Midlands", "West Midlands", "East Yorkshire", "North West", "North East", "London", "Sourth East", "South West", "West", "East", "South", "Yorks" ], "channels": [ "BBC News [UK]", "BBC News [World]", "BBC One", "BBC Two", "BBC Three", "BBC Four", "Cbeebies", "CBBC", "BBC Parliament", "BBC Alba", "BBC Scotland" ], "BBC News [World]": "bbc_world_service", "BBC News [UK]": "bbc_news24", "BBC One Scotland": "bbc_one_scotland", "BBC One North East": "bbc_one_north_east", "BBC One North West": "bbc_one_north_west", "BBC One East Midlands": "bbc_one_east_midlands", "BBC One West Midlands": "bbc_one_west_midlands", "BBC One East Yorkshire": "bbc_one_east_yorkshire", "BBC One London": "bbc_one_london", "BBC One South East": "bbc_one_south_east", "BBC One South West": "bbc_one_south_west", "BBC One Northern Ireland": "bbc_one_northern_ireland", "BBC One Wales": "bbc_one_wales", "BBC One West": "bbc_one_west", "BBC One East": "bbc_one_east", "BBC One South": "bbc_one_south", "BBC One Yorks": "bbc_one_yorks", "BBC One": "bbc_one_hd", "BBC Two England": "bbc_two_england", "BBC Two Scotland": "bbc_two_scotland", "BBC Two Northern Ireland": "bbc_two_northern_ireland_digital", "BBC Two Wales": "bbc_two_wales_digital", "BBC Two": "bbc_two_hd", "BBC Three": "bbc_three_hd", "BBC Four": "bbc_four_hd", "CBeebies": "cbeebies_hd", "CBBC": "cbbc_hd", "BBC Parliament": "bbc_parliament", "BBC Alba": "bbc_alba_hd", "BBC Scotland": "bbc_scotland_hd" }
-if db["NitroSIDs"] != nitroSIDs: db["NitroSIDs"] = nitroSIDs
+if db["NitroSIDs"] == []: db["NitroSIDs"] = nitroSIDs
 
 # syntax: [status id, value of discord.StatusType enum, activity name]
 basestatuses = [["bi01", 3, "num make fire graphics 🔥"], ["bi02", 3, "Maryam bend a spoon"], ["bi03", 2, "The Shipping Forecast"], ["bi04", 2, "David Lowe's amazing music"], ["bi05", 3, "the BBC News channel"], ["bi06", 3, "Talking Business with Aaron Heslehurst"], ["bi07", 4, "BBC World Service"]]
-if db["statuses"] != basestatuses: db["statuses"] = basestatuses
+if db["statuses"] == []: db["statuses"] = basestatuses
+
+if isinstance(db["croissants"], list): db["croissants"] = {}
 
 @bot.event
 async def on_ready():
@@ -100,6 +107,30 @@ async def aaron(interaction: commands.Context):
     imgpath = random_file("images/aaron")
     image = discord.File(f"images/aaron/{imgpath}")
     await interaction.send(file=image)
+
+@bot.hybrid_command(name="give-croissant", description="Gives a croissant to a user.")
+async def give_croissant(interaction: commands.Context, user: discord.Member):
+    if user.id == interaction.author.id:
+        await interaction.reply(content=f"Sily {interaction.author.mention}, you can't give a croissant to yourself!")
+        return
+    elif user.bot:
+        await interaction.reply(content=f"Sily {interaction.author.mention}, you can't give a croissant to a bot!")
+    else:
+        await interaction.reply(content=f"{interaction.author.mention}, gave a croissant to {user.mention}! Enjoy it!")
+
+        if str(user.id) not in db["croissants"].keys():
+            db["croissants"][str(user.id)] = 1
+        else:
+            db["croissants"][str(user.id)] += 1
+
+@bot.hybrid_command(name="croissant-inventory", description="Tells you how many croissants you have.")
+async def no_croissants(interaction: commands.Context):
+    if str(interaction.author.id) not in db["croissants"].keys():
+        db["croissants"][str(interaction.author.id)] = 0
+    
+    no = db["croissants"][str(interaction.author.id)]
+
+    await interaction.reply(content=f"You have **{no} croissants**!")
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
     options = db['NitroSIDs']['channels']
