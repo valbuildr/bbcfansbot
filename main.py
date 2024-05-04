@@ -122,10 +122,10 @@ async def a_world_without_robert(interaction: commands.Context):
 @bot.hybrid_command(name="give-croissant", description="Gives a croissant to a user.")
 async def give_croissant(interaction: commands.Context, user: discord.Member):
     if user.id == interaction.author.id:
-        await interaction.reply(content=f"Sily {interaction.author.mention}, you can't give a croissant to yourself!")
+        await interaction.reply(content=f"Silly {interaction.author.mention}, you can't give a croissant to yourself!")
         return
     elif user.bot:
-        await interaction.reply(content=f"Sily {interaction.author.mention}, you can't give a croissant to a bot!")
+        await interaction.reply(content=f"Silly {interaction.author.mention}, you can't give a croissant to a bot!")
     else:
         await interaction.reply(content=f"{interaction.author.mention}, gave a croissant to {user.mention}! Enjoy it!")
 
