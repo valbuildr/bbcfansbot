@@ -6,7 +6,7 @@ from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
 
-run_beta = False
+run_beta = True
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: dict())
@@ -113,6 +113,14 @@ async def aaron(interaction: commands.Context):
     imgpath = random_file("images/aaron")
     image = discord.File(f"images/aaron/{imgpath}")
     await interaction.send(file=image)
+
+@bot.hybrid_command(name="a-world-without-robert", description="Can you imagine?")
+async def a_world_without_robert(interaction: commands.Context):
+    if interaction.interaction:
+        await interaction.interaction.response.defer()
+        await interaction.interaction.followup.send(file=discord.File("images/a_world_without_robert.mp4"))
+    else:
+        await interaction.send(file=discord.File("images/a_world_without_robert.mp4"))
 
 @bot.hybrid_command(name="give-croissant", description="Gives a croissant to a user.")
 async def give_croissant(interaction: commands.Context, user: discord.Member):
