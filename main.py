@@ -114,12 +114,9 @@ async def aaron(interaction: commands.Context):
     image = discord.File(f"images/aaron/{imgpath}")
     await interaction.send(file=image)
 
-@bot.hybrid_command(name="a-world-without-robert", description="Can you imagine?")
+@bot.command(name="a-world-without-robert", description="Can you imagine?")
 async def a_world_without_robert(interaction: commands.Context):
-    if interaction.interaction:
-        await interaction.interaction.response.defer()
-        await interaction.interaction.followup.send(file=discord.File("images/a_world_without_robert.mp4"))
-    else:
+    async with interaction.typing:
         await interaction.send(file=discord.File("images/a_world_without_robert.mp4"))
 
 @bot.hybrid_command(name="give-croissant", description="Gives a croissant to a user.")
