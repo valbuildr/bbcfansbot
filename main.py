@@ -119,6 +119,7 @@ async def a_world_without_robert(interaction: commands.Context):
     async with interaction.typing:
         await interaction.send(file=discord.File("images/a_world_without_robert.mp4"))
 
+
 @bot.hybrid_command(name="give-croissant", description="Gives a croissant to a user.")
 async def give_croissant(interaction: commands.Context, user: discord.Member):
     if user.id == interaction.author.id:
@@ -135,13 +136,17 @@ async def give_croissant(interaction: commands.Context, user: discord.Member):
             db["croissants"][str(user.id)] += 1
 
 @bot.hybrid_command(name="croissant-inventory", description="Tells you how many croissants you have.")
-async def no_croissants(interaction: commands.Context):
+async def croissant_inv(interaction: commands.Context):
     if str(interaction.author.id) not in db["croissants"].keys():
         db["croissants"][str(interaction.author.id)] = 0
     
     no = db["croissants"][str(interaction.author.id)]
 
     await interaction.reply(content=f"You have **{no} croissants**!")
+
+@bot.hybrid_command(name="croissant-lb", description="The croisant leaderboard! Shows the top 3 users with the most croissants.")
+async def croissant_leader(interaction: commands.Context):
+    ...
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
     options = db['NitroSIDs']['channels']
@@ -191,7 +196,8 @@ async def programme(interaction: discord.Interaction,
         for off, i in enumerate(listing['items']):
             starttime = i['time'][0]
             if todaylive and off == todaylive: # live
-                if i['title'] == "World Business Report" or i['title'] == "Asia Business Report": # wbr/abr emoji, to be replaced with business today
+                biz = ["World Business Report", "Asia Business Report", "Business Today - NYSE Opening Bell", "Business Today"]
+                if i['title'] in biz: # business emoji
                     items += f"<:business:1229821037860880515> <t:{starttime}:t> - **{i['title']}**\n"
                 elif i['title'] == "BBC News": # news emoji
                     items += f"<:news:1229821049986875474> <t:{starttime}:t> - **{i['title']}**\n"
