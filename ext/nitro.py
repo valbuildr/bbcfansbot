@@ -142,7 +142,12 @@ async def get_link(db, sid, date=None):
         sid = await resolve_sid(sid, db)
 
         links = {
-            "bbc_world_service": "https://www.bbc.co.uk/schedules/p00fzl9j", # news, europe
+            "bbc_world_news_europe": "https://www.bbc.co.uk/schedules/p00fzl9j", # news, europe
+            "bbc_world_news_north_america": "https://www.bbc.co.uk/schedules/p00fzl9m", # news, na
+            "bbc_world_news_latin_america": "https://www.bbc.co.uk/schedules/p00fzl9k", # news, latam
+            "bbc_world_news_middle_east": "https://www.bbc.co.uk/schedules/p00fzl9l", # news, m-east
+            "bbc_world_news_asia_pacific": "https://www.bbc.co.uk/schedules/p00fzl9h", # news, asia pacific
+            "bbc_world_news_south_asia": "https://www.bbc.co.uk/schedules/p00fzl9n", # news, south asia
             "bbc_news24": "https://www.bbc.co.uk/schedules/p01kv924", # news, uk hd
             "bbc_one_scotland": "https://www.bbc.co.uk/schedules/p013blmc", # one, scotland hd
             "bbc_one_north_east": "https://www.bbc.co.uk/schedules/p00fzl6r", # one, north east & cumbria hd
