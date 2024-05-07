@@ -100,8 +100,6 @@ async def sync(interaction: commands.Context):
         return
     else:
         m = await interaction.send(content="You don't have the permissions to do this!")
-        await interaction.message.delete(10)
-        await m.delete(10)
         return
 
 def random_file(path: str):
