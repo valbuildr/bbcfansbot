@@ -216,6 +216,8 @@ async def programme(interaction: discord.Interaction,
                     items += f"<:ten:1229821040637513799> <t:{starttime}:t> - {i['title']}\n"
                 elif i['title'] == "Pointless": # pointless emoji
                     items += f"<:pointless:1233447132619608237> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "Talking Business": # AARON!!!!!
+                    items += f"<:aaronHappy:1162164376883699763> <t:{starttime}:t> - {i['title']}\n"
                 else:
                     items += f"⬛ <t:{starttime}:t> - {i['title']}\n"
         # adds the items field after being parsed as a single-str
