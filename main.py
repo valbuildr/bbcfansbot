@@ -71,6 +71,13 @@ async def on_member_update(before: discord.Member, after: discord.Member):
 async def ping(ctx: commands.Context):
     await ctx.send(content=f"## Pong!\nMy ping is {round(bot.latency * 1000)}ms.")
 
+@bot.command()
+@commands.is_owner()
+@commands.dm_only()
+async def db_sync(ctx: commands.Context):
+    db["statuses"] = basestatuses
+    await ctx.reply(content="done")
+
 @bot.command(name="nf-live-start", hidden=True)
 async def nf_start(ctx: commands.Context):
     nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
@@ -194,28 +201,7 @@ async def programme(interaction: discord.Interaction,
         for off, i in enumerate(listing['items']):
             starttime = i['time'][0]
             if todaylive and off == todaylive: # live
-                biz = ["World Business Report", "Asia Business Report", "Business Today - NYSE Opening Bell", "Business Today"]
-                if i['title'] in biz: # business emoji
-                    items += f"<:business:1229821037860880515> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "BBC News": # news emoji
-                    items += f"<:news:1229821049986875474> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "BBC News Now": # news now emoji
-                    items += f"<:newsnow:1229891488662425721> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "BBC News at One": # nao emoji
-                    items += f"<:one:1229821045393981460> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "": # regions emoji
-                    # TODO: get a list of region programme names
-                    items += f"<:regions:1229438785737986068> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "BBC News at Six": # nas emoji
-                    items += f"<:six:1229821042432671825> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "Sportsday": # sport emoji
-                    items += f"<:sport:1229829293094469774> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "BBC News at Ten": # nat emoji
-                    items += f"<:ten:1229821040637513799> <t:{starttime}:t> - **{i['title']}**\n"
-                elif i['title'] == "Pointless": # pointless emoji
-                    items += f"<:pointless:1233447132619608237> <t:{starttime}:t> - **{i['title']}**\n"
-                else:
-                    items += f"<a:LivePulseRed:1233447000574398557> <t:{starttime}:t> - **{i['title']}**\n"
+                items += f"**<a:LivePulseRed:1233447000574398557> <t:{starttime}:t> - {i['title']}**\n"
             else: # not live
                 biz = ["World Business Report", "Asia Business Report", "Business Today - NYSE Opening Bell", "Business Today"]
                 if i['title'] in biz: # business emoji
