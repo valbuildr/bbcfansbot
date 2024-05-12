@@ -6,7 +6,7 @@ from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
 
-run_beta = True
+run_beta = False
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: dict())
@@ -329,5 +329,9 @@ async def issue(interaction: commands.Context):
     description="Report it on the [Github repository](https://github.com/valbuildr/bbcfansbot/issues).", 
     colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
+
+@bot.command(name="warn", description="Warn a user.")
+async def warn(ctx: commands.Context, user: discord.User, *reason: str):
+    reason = ''.join(reason)
 
 bot.run(config.main_discord_token)
