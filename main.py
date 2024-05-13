@@ -279,7 +279,7 @@ async def programme(interaction: discord.Interaction,
                 match i['title']:
                     case "Breakfast": items += f"<:breakfast:1239516524893437995> <t:{starttime}:t> - {i['title']}\n"
                     case "BBC News": items += f"<:news:1239516535790506025> <t:{starttime}:t> - {i['title']}\n"
-                    case "Business Today - NYSE Opening Bell" | "Business Today": items += f"<:business:1229821037860880515> <t:{starttime}:t> - {i['title']}\n"
+                    case "Business Today - NYSE Opening Bell" | "Business Today": items += f"<:business:1239516530417340498> <t:{starttime}:t> - {i['title']}\n"
                     case "BBC News Now": items += f"<:newsnow:1239517505341362266> <t:{starttime}:t> - {i['title']}\n"
                     case "BBC News at One": items += f"<:one:1239607750913294356> <t:{starttime}:t> - {i['title']}\n"
                     case "Look East": items += f"{regions_emoji} <t:{starttime}:t> - {i['title']}\n"
