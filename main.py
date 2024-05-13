@@ -272,32 +272,23 @@ async def programme(interaction: discord.Interaction,
         for off, i in enumerate(listing['items']):
             starttime = i['time'][0]
             if todaylive and off == todaylive: # live
-                items += f"**<a:LivePulseRed:1233447000574398557> <t:{starttime}:t> - {i['title']}**\n"
+                items += f"> **<a:LivePulseRed:1233447000574398557> <t:{starttime}:t> - {i['title']}**\n"
             else: # not live
-                biz = ["World Business Report", "Asia Business Report", "Business Today - NYSE Opening Bell", "Business Today"]
-                if i['title'] in biz: # business emoji
-                    items += f"<:business:1229821037860880515> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "BBC News": # news emoji
-                    items += f"<:news:1229821049986875474> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "BBC News Now": # news now emoji
-                    items += f"<:newsnow:1229891488662425721> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "BBC News at One": # nao emoji
-                    items += f"<:one:1229821045393981460> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "": # regions emoji
-                    # TODO: get a list of region programme names
-                    items += f"<:regions:1229438785737986068> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "BBC News at Six": # nas emoji
-                    items += f"<:six:1229821042432671825> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "Sportsday": # sport emoji
-                    items += f"<:sport:1229829293094469774> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "BBC News at Ten": # nat emoji
-                    items += f"<:ten:1229821040637513799> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "Pointless": # pointless emoji
-                    items += f"<:pointless:1233447132619608237> <t:{starttime}:t> - {i['title']}\n"
-                elif i['title'] == "Talking Business": # AARON!!!!!
-                    items += f"<:aaronHappy:1162164376883699763> <t:{starttime}:t> - {i['title']}\n"
-                else:
-                    items += f"⬛ <t:{starttime}:t> - {i['title']}\n"
+                regions = [] # TODO get list of regions
+                if i['title'] == "Breakfast": items += f"<:breakfast:1239516524893437995> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News": items += f"<:news:1239516535790506025> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "Business Today - NYSE Opening Bell" or i['title'] == "Business Today": items += f"<:business:1229821037860880515> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News Now": items += f"<:newsnow:1239517505341362266> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News at One": items += f"<:one:1239516546447970344> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] in regions: items += f"<:regions:1239518621185871912> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "Verified Live": items += f"<:verifiedlive:1239516563229638696> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News at Six": items += f"<:six:1239516551053312061> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "Sportsday": items += f"<:sport:1239516554304028673> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "The World Today with Maryam Moshiri": items += f"<:worldtoday:1239516571555201024> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC World News America": items += f"<:worldnewsamerica:1239516567444656140> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "BBC News at Ten": items += f"<:ten:1239516560129785866> <t:{starttime}:t> - {i['title']}\n"
+                elif i['title'] == "Newswatch": items += f"<:newswatch:1239516541167468654> <t:{starttime}:t> - {i['title']}\n"
+                else: items += f"⚫ <t:{starttime}:t> - {i['title']}\n"
         # adds the items field after being parsed as a single-str
         e.add_field(name=f"Page {page}/{math.ceil(listing['total_items'] / 10)}:", value=items)
         e.set_footer(text="Times are based on your system clock.")
@@ -329,9 +320,5 @@ async def issue(interaction: commands.Context):
     description="Report it on the [Github repository](https://github.com/valbuildr/bbcfansbot/issues).", 
     colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
-
-@bot.command(name="warn", description="Warn a user.")
-async def warn(ctx: commands.Context, user: discord.User, *reason: str):
-    reason = ''.join(reason)
 
 bot.run(config.main_discord_token)
