@@ -92,12 +92,34 @@ nitroSIDs = {
 }
 db["NitroSIDs"] = nitroSIDs
 
-db["statuses"] = dict()
 # syntax: [status id, value of discord.StatusType enum, activity name]
-basestatuses = [["bi01", 3, "num make fire graphics 🔥"], ["bi02", 3, "Maryam bend a spoon"], ["bi03", 2, "The Shipping Forecast"], ["bi04", 2, "David Lowe's amazing music"], ["bi05", 3, "the BBC News channel"], ["bi06", 3, "Talking Business with Aaron Heslehurst"], ["bi07", 4, "BBC World Service"]]
+basestatuses = [
+    ["bi01", 3, "num make fire graphics 🔥"],
+    ["bi02", 3, "Maryam bend a spoon"],
+    ["bi03", 2, "The Shipping Forecast"],
+    ["bi04", 2, "David Lowe's amazing music"],
+    ["bi05", 3, "the BBC News channel"],
+    ["bi06", 3, "Talking Business with Aaron Heslehurst"],
+    ["bi07", 3, "BBC World Service"],
+    ["bi08", 3, "EF make a countdown"],
+]
 if db["statuses"] == {}: db["statuses"] = basestatuses
 
-db["croissants"] = dict()
+@bot.command()
+@commands.dm_only()
+async def sync_statuses(ctx: commands.Context):
+    ids = [1191850547138007132, 152501641436856321]
+    if ctx.author.id in ids:
+        r = await ctx.send(content="Syncing...")
+        
+        for status in basestatuses:
+            if status not in db["statuses"]:
+                db["statuses"].append(status)
+        
+        await r.edit(content="Synced!")
+    else:
+        await ctx.send(content="You don't have the permissions to do this!")
+        return
 
 @bot.event
 async def on_ready():
@@ -274,10 +296,12 @@ async def programme(interaction: discord.Interaction,
             if todaylive and off == todaylive: # live
                 items += f"> **<a:LivePulseRed:1233447000574398557> <t:{starttime}:t> - {i['title']}**\n"
             else: # not live
-                # TODO: Change all of this to simply fetch the emojis from Discord instead of having to chane the emojis in the strings.
+                # TODO: Change all of this to simply fetch the emojis from Discord instead of having to change the emojis in the strings.
                 regions_emoji = "<:regions:1239609035624288367>"
                 match i['title']:
-                    case "Breakfast": items += f"<:breakfast:1239516524893437995> <t:{starttime}:t> - {i['title']}\n"
+                    case "Breakfast":
+                        emoji = bot.get_guild(1229420194611331182).get_emoji()
+                        items += f"<:breakfast:1239516524893437995> <t:{starttime}:t> - {i['title']}\n"
                     case "BBC News": items += f"<:news:1239516535790506025> <t:{starttime}:t> - {i['title']}\n"
                     case "Business Today - NYSE Opening Bell" | "Business Today": items += f"<:business:1239516530417340498> <t:{starttime}:t> - {i['title']}\n"
                     case "BBC News Now": items += f"<:newsnow:1239517505341362266> <t:{starttime}:t> - {i['title']}\n"
