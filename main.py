@@ -99,10 +99,6 @@ async def sync_statuses(ctx: commands.Context):
     if ctx.author.id in ids:
         r = await ctx.send(content="Syncing...")
         
-        for status in basestatuses:
-            if status not in db["statuses"]:
-                db["statuses"].append(status)
-        
         await r.edit(content="Synced!")
     else:
         await ctx.send(content="You don't have the permissions to do this!")
