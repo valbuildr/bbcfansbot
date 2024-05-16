@@ -92,19 +92,6 @@ nitroSIDs = {
 }
 db["NitroSIDs"] = nitroSIDs
 
-# syntax: [status id, value of discord.StatusType enum, activity name]
-basestatuses = [
-    ["bi01", 3, "num make fire graphics 🔥"],
-    ["bi02", 3, "Maryam bend a spoon"],
-    ["bi03", 2, "The Shipping Forecast"],
-    ["bi04", 2, "David Lowe's amazing music"],
-    ["bi05", 3, "the BBC News channel"],
-    ["bi06", 3, "Talking Business with Aaron Heslehurst"],
-    ["bi07", 3, "BBC World Service"],
-    ["bi08", 3, "EF make a countdown"],
-]
-if db["statuses"] == {}: db["statuses"] = basestatuses
-
 @bot.command()
 @commands.dm_only()
 async def sync_statuses(ctx: commands.Context):
