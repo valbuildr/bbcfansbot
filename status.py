@@ -130,38 +130,12 @@ async def change_status(bot: commands.Bot, db: DatabaseFolder):
             await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
         else:
             rand = random.choice(statuses)
-
-            typ = discord.ActivityType.playing
-
-            match rand[1]:
-                case 1:
-                    typ = discord.ActivityType.streaming
-                case 2:
-                    typ = discord.ActivityType.listening
-                case 3:
-                    typ = discord.ActivityType.watching
-                case 5:
-                    typ = discord.ActivityType.competing
-        
-            await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
+            await bot.change_presence(activity=rand)
     else:
         rand = random.choice(statuses)
+        await bot.change_presence(activity=rand)
 
-        typ = discord.ActivityType.playing
-
-        match rand[1]:
-            case 1:
-                typ = discord.ActivityType.streaming
-            case 2:
-                typ = discord.ActivityType.listening
-            case 3:
-                typ = discord.ActivityType.watching
-            case 5:
-                typ = discord.ActivityType.competing
-    
-        await bot.change_presence(activity=discord.Activity(type=typ, name=rand[2]))
-
-        await asyncio.sleep(60) # run every minute
+    await asyncio.sleep(60) # run every minute
 
 async def task(bot: commands.Bot, db: DatabaseFolder):
     while True:
