@@ -299,9 +299,7 @@ async def programme(interaction: discord.Interaction,
                 # TODO: Change all of this to simply fetch the emojis from Discord instead of having to change the emojis in the strings.
                 regions_emoji = "<:regions:1239609035624288367>"
                 match i['title']:
-                    case "Breakfast":
-                        emoji = bot.get_guild(1229420194611331182).get_emoji()
-                        items += f"<:breakfast:1239516524893437995> <t:{starttime}:t> - {i['title']}\n"
+                    case "Breakfast": items += f"<:breakfast:1239516524893437995> <t:{starttime}:t> - {i['title']}\n"
                     case "BBC News": items += f"<:news:1239516535790506025> <t:{starttime}:t> - {i['title']}\n"
                     case "Business Today - NYSE Opening Bell" | "Business Today": items += f"<:business:1239516530417340498> <t:{starttime}:t> - {i['title']}\n"
                     case "BBC News Now": items += f"<:newsnow:1239517505341362266> <t:{starttime}:t> - {i['title']}\n"
