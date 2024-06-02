@@ -1,10 +1,13 @@
-import discord, config, random, traceback, datetime, logging, status, math, os
+import discord, random, traceback, datetime, logging, status, math, os
 from datetime import datetime
 from typing import List
 from discord.ext import commands
 from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
 
 run_beta = False
 
@@ -343,4 +346,4 @@ async def issue(interaction: commands.Context):
     colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
 
-bot.run(config.main_discord_token)
+bot.run(config["DISCORD_TOKEN"])

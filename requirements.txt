@@ -1,3 +1,4 @@
 discord.py[voice]
 simplejsondb
 tzdata
+python-dotenv

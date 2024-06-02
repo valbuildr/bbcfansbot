@@ -1,5 +1,8 @@
-import config, aiohttp, re, math, messageutils
+import aiohttp, re, math, messageutils
 from datetime import datetime
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
 
 async def verify_date(date):
     try:
@@ -58,7 +61,7 @@ async def get_schedule(db, sid, date=None, page=0):
         if not isinstance(parsedsid, str): raise Exception("ERROR - Incorrect Channel.") # raise error if sid given is incorrect
         # mixin titles is needed to get the proper related info about the scheduled broadcast's naming.
         params = { 
-            'api_key': config.nitro_secret,
+            'api_key': config["NITRO_SECRET"],
             'sid': parsedsid,
             'mixin': 'titles', 
             'schedule_day': parsed_date.strftime("%Y-%m-%d"),
