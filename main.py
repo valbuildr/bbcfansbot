@@ -1,4 +1,5 @@
-import discord, random, traceback, datetime, logging, status, math, os
+import discord, random, traceback, datetime, logging, math, os, messageutils
+import ext.status as status
 from datetime import datetime
 from typing import List
 from discord.ext import commands
@@ -113,8 +114,6 @@ async def on_ready():
 
     bot.loop.create_task(status.task(bot, db))
 
-    # await bot.load_extension("ext.economy")
-
     return
 
 # should only be used for debugging
@@ -127,19 +126,18 @@ async def on_ready():
 async def on_message(message: discord.Message):
     if bot.user.mentioned_in(message): await message.add_reaction("👋")
     
+    # censoring bot bot 🥰🥰
     if message.content == "(please do consider using vxtwitter please and thank you)" and message.author.id == 1091826653367386254: await message.delete()
-
-    if ":pepeAngryPing:"in  message.content and message.author.id == 1091826653367386254: await message.delete()
-
-    if "Sent to https://bloopertrack.club" in message.content and message.author.id == 1091826653367386254: await message.delete()
+    if message.content == ":pepeAngryPing:" and message.author.id == 1091826653367386254: await message.delete()
+    if message.content == "Sent to https://bloopertrack.club" and message.author.id == 1091826653367386254: await message.delete()
 
     await bot.process_commands(message)
 
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
     if before.timed_out_until == None and after.timed_out_until != None:
-        to_until_a = nitro.dt_to_timestamp(after.timed_out_until, "R")
-        to_until_b = nitro.dt_to_timestamp(after.timed_out_until, "f")
+        to_until_a = messageutils.dt_to_timestamp(after.timed_out_until, "R")
+        to_until_b = messageutils.dt_to_timestamp(after.timed_out_until, "f")
 
         embed = discord.Embed(title="Member timed out", colour=discord.Colour.brand_red())
         embed.add_field(name="Timed out until", value=f"{to_until_a} ({to_until_b})")
