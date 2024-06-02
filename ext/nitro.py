@@ -1,12 +1,5 @@
-import config, aiohttp, re, math
+import config, aiohttp, re, math, messageutils
 from datetime import datetime
-
-def dt_to_timestamp(dt: datetime, f):
-    formats = ["d", "D", "t", "T", "f", "F", "R"]
-    if f not in formats:
-        return int(dt.timestamp())
-    else:
-        return f"<t:{int(dt.timestamp())}:{f}>"
 
 async def verify_date(date):
     try:
@@ -114,8 +107,8 @@ async def get_schedule(db, sid, date=None, page=0):
                                 except:
                                     title = i['ancestors_titles']['episode']
                             # converts to unix
-                            starttime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['start']), "z")
-                            endtime = dt_to_timestamp(datetime.fromisoformat(i['published_time']['end']), "z")
+                            starttime = messageutils.dt_to_timestamp(datetime.fromisoformat(i['published_time']['start']), "z")
+                            endtime = messageutils.dt_to_timestamp(datetime.fromisoformat(i['published_time']['end']), "z")
                             listing['items'].append({
                                 "title": title['title'],
                                 "pid": i['pid'],

@@ -1,4 +1,12 @@
+from datetime import datetime
 import discord, logging, traceback
+
+def dt_to_timestamp(dt: datetime, f):
+    formats = ["d", "D", "t", "T", "f", "F", "R"]
+    if f not in formats:
+        return int(dt.timestamp())
+    else:
+        return f"<t:{int(dt.timestamp())}:{f}>"
 
 def error_template(e):
     embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
