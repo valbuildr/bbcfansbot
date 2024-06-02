@@ -1,5 +1,5 @@
 from datetime import datetime
-import discord, logging, traceback
+import discord
 
 def dt_to_timestamp(dt: datetime, f: str) -> str:
     """Converts a datetime object to a Discord timestamp.
