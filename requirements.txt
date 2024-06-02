@@ -1,4 +1,5 @@
 discord.py[voice]
 simplejsondb
 tzdata
+peewee
 python-dotenv

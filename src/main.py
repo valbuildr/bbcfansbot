@@ -1,4 +1,4 @@
-import discord, random, traceback, datetime, logging, math, os, messageutils
+import discord, random, traceback, datetime, logging, math, os, messageutils, database, argparse
 import ext.status as status
 from datetime import datetime
 from typing import List
@@ -7,28 +7,38 @@ from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
 from dotenv import dotenv_values
+from models.croissants import CroissantsModel
+from database import db as database
 
 # TODO: Refactor to new database stuff.
 
-config = dotenv_values(".env")
+config = dotenv_values("src/.env")
 
-run_beta = False
+parser = argparse.ArgumentParser(prog='BBCFansBot',
+                                 description='a silly lil bot :3',
+                                 epilog='stay silly :3 :3 :3 :3')
+parser.add_argument('-d', '--debug',
+                    action="store_true")
+args = parser.parse_args()
 
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: dict())
 
-if run_beta:
-    bot.command_prefix = "."
+if args.debug: bot.command_prefix = "."
 
 fansbotlog = logging.getLogger('discord.fansbot')
 
 @bot.command()
 @commands.dm_only()
-async def sync_statuses(ctx: commands.Context):
+async def sync_tables(ctx: commands.Context):
     ids = [1191850547138007132, 152501641436856321]
     if ctx.author.id in ids:
         r = await ctx.send(content="Syncing...")
         
+        database.create_tables([
+            CroissantsModel,
+        ])
+
         await r.edit(content="Synced!")
     else:
         await ctx.send(content="You don't have the permissions to do this!")
@@ -38,7 +48,7 @@ async def sync_statuses(ctx: commands.Context):
 async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
 
-    bot.loop.create_task(status.task(bot, db))
+    bot.loop.create_task(status.task(bot))
 
     return
 
@@ -76,25 +86,6 @@ async def on_member_update(before: discord.Member, after: discord.Member):
 async def ping(ctx: commands.Context):
     await ctx.send(content=f"## Pong!\nMy ping is {round(bot.latency * 1000)}ms.")
 
-@bot.command(name="nf-live-start", hidden=True)
-async def nf_start(ctx: commands.Context):
-    nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
-    if nf_role in ctx.author.roles:
-        status.run = False
-        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="BBC News Fans"))
-        await ctx.send(content="Set status!")
-    else:
-        await ctx.send(content="You can't run this command.")
-
-@bot.command(name="nf-live-end", hidden=True)
-async def nf_end(ctx: commands.Context):
-    nf_role = bot.get_guild(1016626731785928715).get_role(1152621246748569650)
-    if nf_role in ctx.author.roles:
-        status.run = True
-        await ctx.send(content="Changed status!")
-    else:
-        await ctx.send(content="You can't run this command.")
-
 @bot.command(name="sync")
 async def sync(interaction: commands.Context):
     ids = [1191850547138007132, 152501641436856321]
@@ -107,6 +98,7 @@ async def sync(interaction: commands.Context):
         m = await interaction.send(content="You don't have the permissions to do this!")
         return
 
+
 def random_file(path: str):
     files = os.listdir(path)
     return random.choice(files)
@@ -117,18 +109,9 @@ async def aaron(interaction: commands.Context):
     image = discord.File(f"images/aaron/{imgpath}")
     await interaction.send(file=image)
 
-@bot.command(name="a-world-without-robert", description="Can you imagine?")
-async def a_world_without_robert(interaction: commands.Context):
-    async with interaction.typing:
-        await interaction.send(file=discord.File("images/a_world_without_robert.mp4"))
-
-
-@bot.command(name="boop", description="Boop someone!")
-async def boop(ctx: commands.Context, user: discord.User):
-    await ctx.send(content=f"{ctx.author.mention} booped {user.mention}!")
 
 @bot.hybrid_command(name="give-croissant", description="Gives a croissant to a user.")
-async def give_croissant(interaction: commands.Context, user: discord.Member):
+async def give_croissant(interaction: commands.Context, user: discord.User):
     if user.id == interaction.author.id:
         await interaction.reply(content=f"Silly {interaction.author.mention}, you can't give a croissant to yourself!")
         return
@@ -137,19 +120,13 @@ async def give_croissant(interaction: commands.Context, user: discord.Member):
     else:
         await interaction.reply(content=f"{interaction.author.mention}, gave a croissant to {user.mention}! Enjoy it!")
 
-        if str(user.id) not in db["croissants"].keys():
-            db["croissants"][str(user.id)] = 1
-        else:
-            db["croissants"][str(user.id)] += 1
+        CroissantsModel.add_croissant(user.id)
 
 @bot.hybrid_command(name="croissant-inventory", description="Tells you how many croissants you have.")
 async def croissant_inv(interaction: commands.Context):
-    if str(interaction.author.id) not in db["croissants"].keys():
-        db["croissants"][str(interaction.author.id)] = 0
-    
-    no = db["croissants"][str(interaction.author.id)]
+    u = CroissantsModel.check_user(interaction.author.id)
 
-    await interaction.reply(content=f"You have **{no} croissants**!")
+    await interaction.reply(content=f"You have **{u['croissant_count']} croissants**!")
 
 # @bot.hybrid_command(name="croissant-lb", description="The croisant leaderboard! Shows the top 3 users with the most croissants.")
 # async def croissant_leader(interaction: commands.Context):
@@ -271,3 +248,5 @@ async def issue(interaction: commands.Context):
     await interaction.send(embed=e, ephemeral=True)
 
 bot.run(config["DISCORD_TOKEN"])
+
+# print(config["DISCORD_TOKEN"])
