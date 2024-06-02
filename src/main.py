@@ -8,6 +8,8 @@ from simplejsondb import DatabaseFolder
 from messageutils import error_template
 from dotenv import dotenv_values
 
+# TODO: Refactor to new database stuff.
+
 config = dotenv_values(".env")
 
 run_beta = False
@@ -19,82 +21,6 @@ if run_beta:
     bot.command_prefix = "."
 
 fansbotlog = logging.getLogger('discord.fansbot')
-
-db["NitroSIDs"] = dict()
-nitroSIDs = {
-    "region": [
-        "Northern Ireland",
-        "Scotland",
-        "Wales",
-        "South",
-        "East Midlands",
-        "West Midlands",
-        "East Yorkshire",
-        "North West",
-        "North East",
-        "London",
-        "Sourth East",
-        "South West",
-        "West",
-        "East",
-        "South",
-        "Yorks"
-    ],
-    "channels": [
-        "BBC News [UK]",
-        "BBC News [Europe]",
-        "BBC News [Latin America]",
-        "BBC News [North America]",
-        "BBC News [South Asia]",
-        "BBC News [Asia Pacific]",
-        "BBC News [Middle East]",
-        "BBC One",
-        "BBC Two",
-        "BBC Three",
-        "BBC Four",
-        "Cbeebies",
-        "CBBC",
-        "BBC Parliament",
-        "BBC Alba",
-        "BBC Scotland"
-    ],
-    "BBC News [Europe]": "bbc_world_news_europe",
-    "BBC News [Middle East]": "bbc_world_news_middle_east",
-    "BBC News [North America]": "bbc_world_news_north_america",
-    "BBC News [Asia Pacific]": "bbc_world_news_asia_pacific",
-    "BBC News [South Asia]": "bbc_world_news_south_asia",
-    "BBC News [Latin America]": "bbc_world_news_latin_america",
-    "BBC News [UK]": "bbc_news24",
-    "BBC One Scotland": "bbc_one_scotland",
-    "BBC One North East": "bbc_one_north_east",
-    "BBC One North West": "bbc_one_north_west",
-    "BBC One East Midlands": "bbc_one_east_midlands",
-    "BBC One West Midlands": "bbc_one_west_midlands",
-    "BBC One East Yorkshire": "bbc_one_east_yorkshire",
-    "BBC One London": "bbc_one_london",
-    "BBC One South East": "bbc_one_south_east",
-    "BBC One South West": "bbc_one_south_west",
-    "BBC One Northern Ireland": "bbc_one_northern_ireland",
-    "BBC One Wales": "bbc_one_wales",
-    "BBC One West": "bbc_one_west",
-    "BBC One East": "bbc_one_east",
-    "BBC One South": "bbc_one_south",
-    "BBC One Yorks": "bbc_one_yorks",
-    "BBC One": "bbc_one_hd",
-    "BBC Two England": "bbc_two_england",
-    "BBC Two Scotland": "bbc_two_scotland",
-    "BBC Two Northern Ireland": "bbc_two_northern_ireland_digital",
-    "BBC Two Wales": "bbc_two_wales_digital",
-    "BBC Two": "bbc_two_hd",
-    "BBC Three": "bbc_three_hd",
-    "BBC Four": "bbc_four_hd",
-    "CBeebies": "cbeebies_hd",
-    "CBBC": "cbbc_hd",
-    "BBC Parliament": "bbc_parliament",
-    "BBC Alba": "bbc_alba_hd",
-    "BBC Scotland": "bbc_scotland_hd"
-}
-db["NitroSIDs"] = nitroSIDs
 
 @bot.command()
 @commands.dm_only()
