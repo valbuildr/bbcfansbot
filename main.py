@@ -131,6 +131,9 @@ async def on_message(message: discord.Message):
     if ":pepeAngryPing:"in  message.content and message.author.id == 1091826653367386254:
         await message.delete()
 
+    if "Sent to https://bloopertrack.club/"in  message.content and message.author.id == 1091826653367386254:
+        await message.delete()
+
     await bot.process_commands(message)
 
 @bot.event
