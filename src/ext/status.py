@@ -1,7 +1,6 @@
 import random, discord, asyncio
 from zoneinfo import ZoneInfo
 from datetime import datetime
-from simplejsondb import DatabaseFolder
 from discord.ext import commands
 
 run = True
