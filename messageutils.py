@@ -1,37 +1,31 @@
 from datetime import datetime
 import discord, logging, traceback
 
-def dt_to_timestamp(dt: datetime, f):
+def dt_to_timestamp(dt: datetime, f: str) -> str:
+    """Converts a datetime object to a Discord timestamp.
+
+    Args:
+        dt (datetime): The datetime object to convert.
+        format (str): The format that the timestamp should be in. See the Discord Developer Documentation for more info: https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+
+    Returns:
+        str: The timestamp.
+    """    
     formats = ["d", "D", "t", "T", "f", "F", "R"]
     if f not in formats:
-        return int(dt.timestamp())
+        return str(int(dt.timestamp()))
     else:
         return f"<t:{int(dt.timestamp())}:{f}>"
 
-def error_template(e):
-    embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
-    embed.add_field(name="Error", value=f"{e}")
-    return embed
+def error_template(e: str) -> discord.Embed:
+    """The error template.
 
-async def autothread_from_message(message: discord.Message, log: logging.Logger):
-    if message.channel.type != discord.ChannelType.news_thread and message.channel.type != discord.ChannelType.public_thread and message.channel.type != discord.ChannelType.private_thread:
-        if message.channel.topic != None:
-            if "autothread" in message.channel.topic:
-                try:
-                    t = await message.create_thread(name=f"{message.author.name}'s autothread")
-                except discord.Forbidden as e:
-                    log.error(traceback.format_exception(e))
-                    msg = error_template(f"```\n{e}\n```")
-                    await message.channel.send(embed=msg)
-                except discord.HTTPException as e:
-                    log.error(traceback.format_exception(e))
-                    msg = error_template(f"```\n{e}\n```")
-                    await message.channel.send(embed=msg)
-                except discord.ValueError as e:
-                    log.error(traceback.format_exception(e))
-                    msg = error_template(f"```\n{e}\n```")
-                    await message.channel.send(embed=msg)
-                except:
-                    log.error(traceback.format_exception(e))
-                    msg = error_template(f"<:idk:1100473028485324801> Check bot logs.")
-                    await message.channel.send(embed=msg)
+    Args:
+        e (str): The error to put in the embed.
+
+    Returns:
+        discord.Embed: The embed to add to a message.
+    """    
+    embed = discord.Embed(title=f"An error occurred!", colour=discord.Colour.red())
+    embed.add_field(name="Error", value=f"```\n{e}\n```")
+    return embed
