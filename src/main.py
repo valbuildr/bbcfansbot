@@ -172,7 +172,7 @@ async def programme(interaction: discord.Interaction,
     await interaction.response.defer(ephemeral=False)
     try:
         if region: sid = f"{sid} {region}"
-        listing = await nitro.get_schedule(db, sid, date, page)
+        listing = await nitro.get_schedule(sid, date, page)
         items = ""
         # makes the embed base
         e = discord.Embed(title=f"Schedule for {listing['passedSid']}, {listing['date']}", 
