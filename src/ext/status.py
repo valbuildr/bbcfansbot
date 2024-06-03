@@ -39,35 +39,8 @@ async def change_status(bot: commands.Bot) -> None:
 
     weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
-    if now.strftime("%a") in weekdays:
-        if now.hour == 6 or now.hour == 7 or now.hour == 8 or now.hour == 9:
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="BBC Breakfast"))
-        elif now.hour == 13 and now.minute >= 30:
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at One"))
-        elif now.hour == 13 and now.minute <= 31 and now.minute <= 45:
-            random_region = random.choice(regions)
-            if random_region == "North West Tonight":
-                random_region = "North West Today"
-            
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
-        elif now.hour == 18 and now.minute >= 31:
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at Six"))
-        elif now.hour == 18 and now.minute <= 31 and now.minute <= 55:
-            random_region = random.choice(regions)
-
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
-        elif now.hour == 22 and now.minute >= 30:
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the News at Ten"))
-        elif now.hour == 22 and now.minute <= 30 and now.minute <= 40:
-            random_region = random.choice(regions)
-
-            await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=random_region))
-        else:
-            rand = random.choice(statuses)
-            await bot.change_presence(activity=rand)
-    else:
-        rand = random.choice(statuses)
-        await bot.change_presence(activity=rand)
+    rand = random.choice(statuses)
+    await bot.change_presence(activity=rand)
 
 async def task(bot: commands.Bot) -> None:
     """The status task.
