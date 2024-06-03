@@ -131,14 +131,13 @@ async def croissant_inv(interaction: commands.Context, user: discord.User = None
     cc = ""
 
     if u['croissant_count'] == 1:
-        cc = "have **1 croissant**!"
+        cc = "**1 croissant**!"
     elif u["croissant_count"] == 0:
-        cc = "has **no croissants**."
+        cc = "**no croissants**."
     else:
-        cc = f"has **{u['croissant_count']} croissants**!"
+        cc = f"**{u['croissant_count']} croissants**!"
 
-    if user.id == interaction.author.id: await interaction.reply(content=f"You {cc}")
-    elif user.id != interaction.author.id: await interaction.reply(content=f"{user.mention} {cc}", allowed_mentions=discord.AllowedMentions.none)
+    await interaction.reply(content=f"{user.mention} has {cc}", allowed_mentions=discord.AllowedMentions.none)
 
 # @bot.hybrid_command(name="croissant-lb", description="The croisant leaderboard! Shows the top 3 users with the most croissants.")
 # async def croissant_leader(interaction: commands.Context):
