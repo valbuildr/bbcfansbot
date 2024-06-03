@@ -126,7 +126,16 @@ async def give_croissant(interaction: commands.Context, user: discord.User):
 async def croissant_inv(interaction: commands.Context):
     u = CroissantsModel.check_user(interaction.author.id)
 
-    await interaction.reply(content=f"You have **{u['croissant_count']} croissants**!")
+    cc = ""
+
+    if u['croissant_count'] == 1:
+        cc = "1 croissant!"
+    elif u["croissant_count"] == 0:
+        cc = "no croissants."
+    else:
+        cc = f"{u['croissant_count']} croissants!"
+
+    await interaction.reply(content=f"You have **{cc}**")
 
 # @bot.hybrid_command(name="croissant-lb", description="The croisant leaderboard! Shows the top 3 users with the most croissants.")
 # async def croissant_leader(interaction: commands.Context):
