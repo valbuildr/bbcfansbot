@@ -299,7 +299,7 @@ class LivePageCommand(appcmds.Group):
                         await post.thread.delete()
                         return await interaction.response.send_message(content="An issue occurred.", ephemeral=True)
                     
-                    await post.thread.send(content="<@&1249858502005100574>") # 1098348259870777465
+                    await post.thread.send(content="<@&1098348259870777465>")
                     return await interaction.response.send_message(content=f"Page created! {post.thread.mention}", ephemeral=True)
             await interaction.response.send_modal(Modal())
         else:
