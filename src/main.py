@@ -1,14 +1,18 @@
-import discord, random, traceback, datetime, logging, math, os, messageutils, database, argparse
+import discord, random, traceback, datetime, logging, math, os, messageutils, database, argparse, peewee
 import ext.status as status
 from datetime import datetime
 from typing import List
 from discord.ext import commands
+from discord import app_commands as appcmds
+from discord import ui
 from ext import nitro
 from simplejsondb import DatabaseFolder
 from messageutils import error_template
 from dotenv import dotenv_values
 from models.croissants import CroissantsModel
+from models.livepages import LivePage
 from database import db as database
+from zoneinfo import ZoneInfo
 
 # TODO: Refactor to new database stuff.
 
@@ -37,6 +41,7 @@ async def sync_tables(ctx: commands.Context):
         
         database.create_tables([
             CroissantsModel,
+            LivePage,
         ])
 
         await r.edit(content="Synced!")
@@ -258,6 +263,139 @@ async def issue(interaction: commands.Context):
     colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
 
-bot.run(config["DISCORD_TOKEN"])
+class LivePageCommand(appcmds.Group):
+    @appcmds.command(name="new", description="Creates a live page.")
+    @appcmds.describe(title="The title of the live page.",
+                      image="The image to add onto the welcome embed.")
+    async def new(self, interaction: discord.Interaction, title: str, image: discord.Attachment = None):
+        if bot.get_guild(1199367542901325854).get_role(1249855596094820382) in interaction.user.roles: # 1016626731785928715 | 1060342499111092244
+            class Modal(ui.Modal, title="Create a first post!"):
+                t = ui.TextInput(label="Post Title",
+                                 style=discord.TextStyle.short,
+                                 placeholder="Our live coverage starts now!",
+                                 default="Our live coverage starts now!",
+                                 required=False,
+                                 max_length=1000)
+                d = ui.TextInput(label="Post Description",
+                                 style=discord.TextStyle.long,
+                                 placeholder=f"Read along as we learn more about \"{title}\", as it happens.",
+                                 default=f"Read along as we learn more about \"{title}\", as it happens.",
+                                 required=False,
+                                 max_length=3000)
+            
+                async def on_submit(self, interaction: discord.Interaction):
+                    embed = discord.Embed(title=self.t, description=self.d, colour=discord.Colour.from_rgb(20, 0, 71))
+                    embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
+                    embed.timestamp = datetime.now(ZoneInfo("Europe/London"))
+                    if image: embed.set_image(url=image.proxy_url)
+                    channel = bot.get_guild(1199367542901325854).get_channel(1249816118420574311) # 1016626731785928715 | ?
+                    post = await channel.create_thread(name=title, embed=embed)
+                    try:
+                        LivePage.create(thread_id=post.thread.id,
+                                        title=post.thread.name,
+                                        started_by=interaction.user.id,
+                                        participating_members=str([interaction.user.id]))
+                    except:
+                        await post.thread.delete()
+                        return await interaction.response.send_message(content="An issue occurred.", ephemeral=True)
+                    
+                    await post.thread.send(content="<@&1249858502005100574>") # 1098348259870777465
+                    return await interaction.response.send_message(content=f"Page created! {post.thread.mention}", ephemeral=True)
+            await interaction.response.send_modal(Modal())
+        else:
+            await interaction.response.send_message(content="You don't have the permissions to do this.", ephemeral=True)
+            return
 
-# print(config["DISCORD_TOKEN"])
+    # TODO: Posting in live page
+    @appcmds.command(name="post", description="Posts to a live page.")
+    @appcmds.describe(thread="The live page's thread.",
+                      image="The image to add onto the welcome embed.")
+    async def post(self, interaction: discord.Interaction, thread: discord.Thread, image: discord.Attachment = None):
+        if bot.get_guild(1199367542901325854).get_role(1249855596094820382) in interaction.user.roles: # 1016626731785928715 | 1060342499111092244
+            try:
+                page = LivePage.get(LivePage.thread_id == thread.id)
+            except peewee.DoesNotExist:
+                return await interaction.response.send_message(content="That thread is not a live page.", ephemeral=True)
+            
+            if page.active:
+                class Modal(ui.Modal, title="Creating a new post"):
+                    t = ui.TextInput(label="Post Title",
+                                     style=discord.TextStyle.short,
+                                     required=True,
+                                     max_length=1000)
+                    d = ui.TextInput(label="Post Description",
+                                     style=discord.TextStyle.long,
+                                     required=True,
+                                     max_length=3000)
+                    
+                    async def on_submit(self, interaction: discord.Interaction):
+                        embed = discord.Embed(title=self.t, description=self.d, colour=discord.Colour.from_rgb(20, 0, 71))
+                        embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
+                        embed.timestamp = datetime.now(ZoneInfo("Europe/London"))
+                        if image: embed.set_image(url=image.proxy_url)
+
+                        partusers = list(page.participating_members)
+                        if interaction.user.id not in partusers:
+                            partusers.append(interaction.user.id)
+                            page.participating_members = str(partusers)
+                            page.save()
+
+                        msg = await thread.send(embed=embed)
+                        return await interaction.response.send_message(content=f"Sent! {msg.jump_url}", ephemeral=True)
+                await interaction.response.send_modal(Modal())
+            else:
+                return await interaction.response.send_message(content="That live page is not active.", ephemeral=True)
+        else:
+            await interaction.response.send_message(content="You don't have the permissions to do this.", ephemeral=True)
+            return
+
+    # TODO: Ending live page
+    @appcmds.command(name="end", description="Closes a live page.")
+    @appcmds.describe(thread="The live page's thread.",
+                      image="The image to add onto the welcome embed.")
+    async def end(self, interaction: discord.Interaction, thread: discord.Thread, image: discord.Attachment = None):
+        if bot.get_guild(1199367542901325854).get_role(1249855596094820382) in interaction.user.roles: # 1016626731785928715 | 1060342499111092244
+            try:
+                page = LivePage.get(LivePage.thread_id == thread.id)
+            except peewee.DoesNotExist:
+                return await interaction.response.send_message(content="That thread is not a live page.", ephemeral=True)
+            
+            if page.active:
+                class Modal(ui.Modal, title="Creating a last post"):
+                    t = ui.TextInput(label="Post Title",
+                                     style=discord.TextStyle.short,
+                                     placeholder="That's is from us!",
+                                     default="That's is from us!",
+                                     required=True,
+                                     max_length=1000)
+                    d = ui.TextInput(label="Post Description",
+                                     style=discord.TextStyle.long,
+                                     placeholder="The journey ends here. Thank you for reading our live coverage.",
+                                     default="The journey ends here. Thank you for reading our live coverage.",
+                                     required=True,
+                                     max_length=3000)
+                    
+                    async def on_submit(self, interaction: discord.Interaction):
+                        embed = discord.Embed(title=self.t, description=self.d, colour=discord.Colour.from_rgb(20, 0, 71))
+                        embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
+                        embed.timestamp = datetime.now(ZoneInfo("Europe/London"))
+                        if image: embed.set_image(url=image.proxy_url)
+
+                        msg = await thread.send(embed=embed)
+
+                        await thread.edit(locked=True, archived=True)
+
+                        page.active = False
+                        page.save()
+
+                        return await interaction.response.send_message(content=f"The live page is now archived! {msg.jump_url}", ephemeral=True)
+                await interaction.response.send_modal(Modal())
+            else:
+                return await interaction.response.send_message(content="That live page is not active.", ephemeral=True)
+        else:
+            await interaction.response.send_message(content="You don't have the permissions to do this.", ephemeral=True)
+            return
+
+bot.tree.add_command(LivePageCommand(name="livepage", description="Live page commands"))
+
+bot.run(config["DISCORD_TOKEN"])
