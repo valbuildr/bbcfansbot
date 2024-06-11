@@ -268,7 +268,7 @@ class LivePageCommand(appcmds.Group):
     @appcmds.describe(title="The title of the live page.",
                       image="The image to add onto the welcome embed.")
     async def new(self, interaction: discord.Interaction, title: str, image: discord.Attachment = None):
-        if bot.get_guild(1199367542901325854).get_role(1249855596094820382) in interaction.user.roles: # 1016626731785928715 | 1060342499111092244
+        if bot.get_guild(1016626731785928715).get_role(1060342499111092244) in interaction.user.roles:
             class Modal(ui.Modal, title="Create a first post!"):
                 t = ui.TextInput(label="Post Title",
                                  style=discord.TextStyle.short,
@@ -288,7 +288,7 @@ class LivePageCommand(appcmds.Group):
                     embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
                     embed.timestamp = datetime.now(ZoneInfo("Europe/London"))
                     if image: embed.set_image(url=image.proxy_url)
-                    channel = bot.get_guild(1199367542901325854).get_channel(1249816118420574311) # 1016626731785928715 | ?
+                    channel = bot.get_guild(1016626731785928715).get_channel(1249931775845863555)
                     post = await channel.create_thread(name=title, embed=embed)
                     try:
                         LivePage.create(thread_id=post.thread.id,
@@ -311,7 +311,7 @@ class LivePageCommand(appcmds.Group):
     @appcmds.describe(thread="The live page's thread.",
                       image="The image to add onto the welcome embed.")
     async def post(self, interaction: discord.Interaction, thread: discord.Thread, image: discord.Attachment = None):
-        if bot.get_guild(1199367542901325854).get_role(1249855596094820382) in interaction.user.roles: # 1016626731785928715 | 1060342499111092244
+        if bot.get_guild(1016626731785928715).get_role(1060342499111092244) in interaction.user.roles:
             try:
                 page = LivePage.get(LivePage.thread_id == thread.id)
             except peewee.DoesNotExist:
@@ -349,12 +349,11 @@ class LivePageCommand(appcmds.Group):
             await interaction.response.send_message(content="You don't have the permissions to do this.", ephemeral=True)
             return
 
-    # TODO: Ending live page
     @appcmds.command(name="end", description="Closes a live page.")
     @appcmds.describe(thread="The live page's thread.",
                       image="The image to add onto the welcome embed.")
     async def end(self, interaction: discord.Interaction, thread: discord.Thread, image: discord.Attachment = None):
-        if bot.get_guild(1199367542901325854).get_role(1249855596094820382) in interaction.user.roles: # 1016626731785928715 | 1060342499111092244
+        if bot.get_guild(1016626731785928715).get_role(1060342499111092244) in interaction.user.roles:
             try:
                 page = LivePage.get(LivePage.thread_id == thread.id)
             except peewee.DoesNotExist:
