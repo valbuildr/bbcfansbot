@@ -143,6 +143,7 @@ async def croissant_inv(interaction: commands.Context, user: discord.User = None
         cc = f"**{u['croissant_count']} croissants**!"
 
     await interaction.reply(content=f"{user.mention} has {cc}", allowed_mentions=discord.AllowedMentions.none)
+    await interaction.reply(content=f"{user.mention} has {cc}", allowed_mentions=discord.AllowedMentions.none())
 
 # @bot.hybrid_command(name="croissant-lb", description="The croisant leaderboard! Shows the top 3 users with the most croissants.")
 # async def croissant_leader(interaction: commands.Context):

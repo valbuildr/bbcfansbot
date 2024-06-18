@@ -4,6 +4,43 @@ from dotenv import dotenv_values
 
 config = dotenv_values(".env")
 
+class Service:
+    bbc_world_news_europe = "bbc_world_news_europe"
+    bbc_world_news_middle_east = "bbc_world_news_middle_east"
+    bbc_world_news_north_america = "bbc_world_news_north_america"
+    bbc_world_news_asia_pacific = "bbc_world_news_asia_pacific"
+    bbc_world_news_south_asia = "bbc_world_news_south_asia"
+    bbc_world_news_latin_america = "bbc_world_news_latin_america"
+    bbc_news24 = "bbc_news24"
+    bbc_one_scotland = "bbc_one_scotland"
+    bbc_one_north_east = "bbc_one_north_east"
+    bbc_one_north_west = "bbc_one_north_west"
+    bbc_one_east_midlands = "bbc_one_east_midlands"
+    bbc_one_west_midlands = "bbc_one_west_midlands"
+    bbc_one_east_yorkshire = "bbc_one_east_yorkshire"
+    bbc_one_london = "bbc_one_london"
+    bbc_one_south_east = "bbc_one_south_east"
+    bbc_one_south_west = "bbc_one_south_west"
+    bbc_one_northern_ireland = "bbc_one_northern_ireland"
+    bbc_one_wales = "bbc_one_wales"
+    bbc_one_west = "bbc_one_west"
+    bbc_one_east = "bbc_one_east"
+    bbc_one_south = "bbc_one_south"
+    bbc_one_yorks = "bbc_one_yorks"
+    bbc_one_hd = "bbc_one_hd"
+    bbc_two_england = "bbc_two_england"
+    bbc_two_scotland = "bbc_two_scotland"
+    bbc_two_northern_ireland_digital = "bbc_two_northern_ireland_digital"
+    bbc_two_wales_digital = "bbc_two_wales_digital"
+    bbc_two_hd = "bbc_two_hd"
+    bbc_three_hd = "bbc_three_hd"
+    bbc_four_hd = "bbc_four_hd"
+    cbeebies_hd = "cbeebies_hd"
+    cbbc_hd = "cbbc_hd"
+    bbc_parliament = "bbc_parliament"
+    bbc_alba_hd = "bbc_alba_hd"
+    bbc_scotland_hd = "bbc_scotland_hd"
+
 nitroSIDs = {
     "region": [
         "Northern Ireland",
@@ -41,41 +78,41 @@ nitroSIDs = {
         "BBC Alba",
         "BBC Scotland"
     ],
-    "BBC News [Europe]": "bbc_world_news_europe",
-    "BBC News [Middle East]": "bbc_world_news_middle_east",
-    "BBC News [North America]": "bbc_world_news_north_america",
-    "BBC News [Asia Pacific]": "bbc_world_news_asia_pacific",
-    "BBC News [South Asia]": "bbc_world_news_south_asia",
-    "BBC News [Latin America]": "bbc_world_news_latin_america",
-    "BBC News [UK]": "bbc_news24",
-    "BBC One Scotland": "bbc_one_scotland",
-    "BBC One North East": "bbc_one_north_east",
-    "BBC One North West": "bbc_one_north_west",
-    "BBC One East Midlands": "bbc_one_east_midlands",
-    "BBC One West Midlands": "bbc_one_west_midlands",
-    "BBC One East Yorkshire": "bbc_one_east_yorkshire",
-    "BBC One London": "bbc_one_london",
-    "BBC One South East": "bbc_one_south_east",
-    "BBC One South West": "bbc_one_south_west",
-    "BBC One Northern Ireland": "bbc_one_northern_ireland",
-    "BBC One Wales": "bbc_one_wales",
-    "BBC One West": "bbc_one_west",
-    "BBC One East": "bbc_one_east",
-    "BBC One South": "bbc_one_south",
-    "BBC One Yorks": "bbc_one_yorks",
-    "BBC One": "bbc_one_hd",
-    "BBC Two England": "bbc_two_england",
-    "BBC Two Scotland": "bbc_two_scotland",
-    "BBC Two Northern Ireland": "bbc_two_northern_ireland_digital",
-    "BBC Two Wales": "bbc_two_wales_digital",
-    "BBC Two": "bbc_two_hd",
-    "BBC Three": "bbc_three_hd",
-    "BBC Four": "bbc_four_hd",
-    "CBeebies": "cbeebies_hd",
-    "CBBC": "cbbc_hd",
-    "BBC Parliament": "bbc_parliament",
-    "BBC Alba": "bbc_alba_hd",
-    "BBC Scotland": "bbc_scotland_hd"
+    "BBC News [Europe]": Service.bbc_world_news_europe,
+    "BBC News [Middle East]": Service.bbc_world_news_middle_east,
+    "BBC News [North America]": Service.bbc_world_news_north_america,
+    "BBC News [Asia Pacific]": Service.bbc_world_news_asia_pacific,
+    "BBC News [South Asia]": Service.bbc_world_news_south_asia,
+    "BBC News [Latin America]": Service.bbc_world_news_latin_america,
+    "BBC News [UK]": Service.bbc_news24,
+    "BBC One Scotland": Service.bbc_one_scotland,
+    "BBC One North East": Service.bbc_one_north_east,
+    "BBC One North West": Service.bbc_one_north_west,
+    "BBC One East Midlands": Service.bbc_one_east_midlands,
+    "BBC One West Midlands": Service.bbc_one_west_midlands,
+    "BBC One East Yorkshire": Service.bbc_one_east_yorkshire,
+    "BBC One London": Service.bbc_one_london,
+    "BBC One South East": Service.bbc_one_south_east,
+    "BBC One South West": Service.bbc_one_south_west,
+    "BBC One Northern Ireland": Service.bbc_one_northern_ireland,
+    "BBC One Wales": Service.bbc_one_wales,
+    "BBC One West": Service.bbc_one_west,
+    "BBC One East": Service.bbc_one_east,
+    "BBC One South": Service.bbc_one_south,
+    "BBC One Yorks": Service.bbc_one_yorks,
+    "BBC One": Service.bbc_one_hd,
+    "BBC Two England": Service.bbc_two_england,
+    "BBC Two Scotland": Service.bbc_two_scotland,
+    "BBC Two Northern Ireland": Service.bbc_two_northern_ireland_digital,
+    "BBC Two Wales": Service.bbc_two_wales_digital,
+    "BBC Two": Service.bbc_two_hd,
+    "BBC Three": Service.bbc_three_hd,
+    "BBC Four": Service.bbc_four_hd,
+    "CBeebies": Service.cbeebies_hd,
+    "CBBC": Service.cbbc_hd,
+    "BBC Parliament": Service.bbc_parliament,
+    "BBC Alba": Service.bbc_alba_hd,
+    "BBC Scotland": Service.bbc_scotland_hd
 }
 
 async def verify_date(date):
