@@ -11,6 +11,7 @@ from messageutils import error_template
 from dotenv import dotenv_values
 from models.croissants import CroissantsModel
 from models.livepages import LivePage
+from models.moderation import ModerationNotes
 from database import db as database
 from zoneinfo import ZoneInfo
 
@@ -28,7 +29,11 @@ args = parser.parse_args()
 bot = commands.Bot(command_prefix=",", intents=discord.Intents.all())
 db = DatabaseFolder('db', default_factory=lambda _: dict())
 
-if args.debug: bot.command_prefix = "."
+if args.debug:
+    bot.command_prefix = "."
+
+server: discord.Guild
+mod_role: discord.Role
 
 fansbotlog = logging.getLogger('discord.fansbot')
 
@@ -52,6 +57,9 @@ async def sync_tables(ctx: commands.Context):
 @bot.event
 async def on_ready():
     fansbotlog.info(f"Logged in as {bot.user.name}.")
+
+    server = bot.get_guild(1199367542901325854)
+    mod_role = server.get_role(1249855596094820382)
 
     bot.loop.create_task(status.task(bot))
 
@@ -142,7 +150,6 @@ async def croissant_inv(interaction: commands.Context, user: discord.User = None
     else:
         cc = f"**{u['croissant_count']} croissants**!"
 
-    await interaction.reply(content=f"{user.mention} has {cc}", allowed_mentions=discord.AllowedMentions.none)
     await interaction.reply(content=f"{user.mention} has {cc}", allowed_mentions=discord.AllowedMentions.none())
 
 # @bot.hybrid_command(name="croissant-lb", description="The croisant leaderboard! Shows the top 3 users with the most croissants.")
@@ -150,14 +157,14 @@ async def croissant_inv(interaction: commands.Context, user: discord.User = None
 #     ...
 
 async def programme_sid_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = db['NitroSIDs']['channels']
+    options = nitro.nitroSIDs["channels"]
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
     ]
 
 async def programme_region_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
-    options = db['NitroSIDs']['region']
+    options = nitro.nitroSIDs["region"]
     return [
         discord.app_commands.Choice(name=option, value=option)
         for option in options if current.lower() in option.lower()
@@ -264,12 +271,73 @@ async def issue(interaction: commands.Context):
     colour=discord.Colour.blurple())
     await interaction.send(embed=e, ephemeral=True)
 
+async def rule_autocomplete(interaction: discord.Interaction, current: str) -> List[discord.app_commands.Choice[str]]:
+    options = {
+        "Be respectful": 1,
+        "Drama": 2,
+        "Use the correct channels": 3,
+        "Doxxing": 4,
+        "Hate speech": 5,
+        "Spam": 6,
+        "Pings": 7,
+        "NSFW content": 8,
+        "Maturity": 9,
+    }
+    return [
+        appcmds.Choice(name=key, value=string)
+        for key, string in options if current.lower() in key.lower()
+    ]
+
+async def length_autocomplete(interaction: discord.Interaction, current: str) -> List[appcmds.Choice[str]]:
+    options = {
+        "1 hour": 3600,
+        "6 hours": 21600,
+        "1 day": 86400,
+        "1 week": 604800,
+        "2 weeks": 1209600,
+    }
+    return [
+        appcmds.Choice(name=key, value=string)
+        for key, string in options if current.lower() in key.lower()
+    ]
+
+@bot.tree.command(name="add-note", description="Adds a note to a users profile.")
+async def add_note(interaction: discord.Interaction, user: discord.Member, note: str, image: discord.Attachment = None, dm_user: bool = False):
+    if mod_role in interaction.user.roles:
+        ...
+    else:
+        await interaction.response.send_message(content="You don't have the permissions to do this.", ephemeral=True)
+
+@bot.tree.command(name="warn", description="Warns a user.")
+@appcmds.autocomplete(rule=rule_autocomplete)
+async def warn(interaction: discord.Interaction, user: discord.Member, reason: str, image: discord.Attachment = None, rule: int = 0, dm_user: bool = False):
+    if mod_role in interaction.user.roles:
+        ...
+    else:
+        await interaction.response.send_message(content="You don't have the permissions to do this.", ephemeral=True)
+
+@bot.tree.command(name="mute", description="Mutes a user.")
+@appcmds.autocomplete(length=length_autocomplete,
+                      rule=rule_autocomplete)
+async def mute(interaction: discord.Interaction, user: discord.Member, reason: str, length: int = 3600, image: discord.Attachment = None, rule: int = 0, dm_user: bool = False):
+    if mod_role in interaction.user.roles:
+        ...
+    else:
+        await interaction.response.send_message(content="You don't have the permissions to do this.", ephemeral=True)
+
+image_types = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+]
+
 class LivePageCommand(appcmds.Group):
     @appcmds.command(name="new", description="Creates a live page.")
     @appcmds.describe(title="The title of the live page.",
                       image="The image to add onto the welcome embed.")
     async def new(self, interaction: discord.Interaction, title: str, image: discord.Attachment = None):
-        if bot.get_guild(1016626731785928715).get_role(1060342499111092244) in interaction.user.roles:
+        if mod_role in interaction.user.roles:
             class Modal(ui.Modal, title="Create a first post!"):
                 t = ui.TextInput(label="Post Title",
                                  style=discord.TextStyle.short,
@@ -288,7 +356,7 @@ class LivePageCommand(appcmds.Group):
                     embed = discord.Embed(title=self.t, description=self.d, colour=discord.Colour.from_rgb(20, 0, 71))
                     embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
                     embed.timestamp = datetime.now(ZoneInfo("Europe/London"))
-                    if image: embed.set_image(url=image.proxy_url)
+                    if image != None and image.content_type in image_types: embed.set_image(url=image.proxy_url)
                     channel = bot.get_guild(1016626731785928715).get_channel(1249931775845863555)
                     post = await channel.create_thread(name=title, embed=embed)
                     try:
@@ -312,7 +380,7 @@ class LivePageCommand(appcmds.Group):
     @appcmds.describe(thread="The live page's thread.",
                       image="The image to add onto the welcome embed.")
     async def post(self, interaction: discord.Interaction, thread: discord.Thread, image: discord.Attachment = None):
-        if bot.get_guild(1016626731785928715).get_role(1060342499111092244) in interaction.user.roles:
+        if mod_role in interaction.user.roles:
             try:
                 page = LivePage.get(LivePage.thread_id == thread.id)
             except peewee.DoesNotExist:
@@ -333,7 +401,7 @@ class LivePageCommand(appcmds.Group):
                         embed = discord.Embed(title=self.t, description=self.d, colour=discord.Colour.from_rgb(20, 0, 71))
                         embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
                         embed.timestamp = datetime.now(ZoneInfo("Europe/London"))
-                        if image: embed.set_image(url=image.proxy_url)
+                        if image != None and image.content_type in image_types: embed.set_image(url=image.proxy_url)
 
                         partusers = list(page.participating_members)
                         if interaction.user.id not in partusers:
@@ -354,7 +422,7 @@ class LivePageCommand(appcmds.Group):
     @appcmds.describe(thread="The live page's thread.",
                       image="The image to add onto the welcome embed.")
     async def end(self, interaction: discord.Interaction, thread: discord.Thread, image: discord.Attachment = None):
-        if bot.get_guild(1016626731785928715).get_role(1060342499111092244) in interaction.user.roles:
+        if mod_role in interaction.user.roles:
             try:
                 page = LivePage.get(LivePage.thread_id == thread.id)
             except peewee.DoesNotExist:
@@ -379,7 +447,7 @@ class LivePageCommand(appcmds.Group):
                         embed = discord.Embed(title=self.t, description=self.d, colour=discord.Colour.from_rgb(20, 0, 71))
                         embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
                         embed.timestamp = datetime.now(ZoneInfo("Europe/London"))
-                        if image: embed.set_image(url=image.proxy_url)
+                        if image != None and image.content_type in image_types: embed.set_image(url=image.proxy_url)
 
                         msg = await thread.send(embed=embed)
 
