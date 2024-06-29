@@ -1,5 +1,0 @@
-{
-  "SuppressEnvironmentCreationPrompt": true,
-  "Interpreter": "Workspace|Workspace|.venv",
-  "SuppressConfigureTestFrameworkPrompt": "true"
-}
